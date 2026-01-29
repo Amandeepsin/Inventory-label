@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Barcode Label Generator</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Crimson+Text:wght@600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --accent: #f59e0b;
+            --bg: #fafaf9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #fafaf9 0%, #f5f5f4 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            border-left: 4px solid var(--accent);
+        }
+
+        .header h1 {
+            font-family: 'Crimson Text', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: var(--bg);
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--card);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .input-hint {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .custom-size-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1e293b;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .products-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+        }
+
+        .products-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .products-container::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        .products-container::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        .product-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background 0.2s;
+        }
+
+        .product-item:hover {
+            background: var(--card);
+        }
+
+        .product-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+        }
+
+        .product-sku {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .quantity-input {
+            width: 80px;
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .selected-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--accent);
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .print-preview {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .label-grid {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .label {
+            border: 1px dashed #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            background: white;
+            page-break-inside: avoid;
+        }
+
+        .label-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.25rem;
+            word-wrap: break-word;
+            width: 100%;
+        }
+
+        .label svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .app-container {
+                padding: 0;
+                max-width: 100%;
+            }
+            
+            .header,
+            .section:not(.print-preview),
+            .btn,
+            .no-print {
+                display: none !important;
+            }
+            
+            .main-grid {
+                display: block;
+            }
+            
+            .print-preview {
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .label {
+                border: none;
+                page-break-inside: avoid;
+            }
+        }
+
+        .size-option {
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg);
+        }
+
+        .size-option:hover {
+            border-color: var(--accent);
+            background: var(--card);
+        }
+
+        .size-option.active {
+            border-color: var(--accent);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .size-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .size-name {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+        }
+
+        .size-dimensions {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // API Configuration - Update this with your Railway deployment URL
+        const API_BASE_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000' 
+            : window.location.origin;
+
+        const STANDARD_SIZES = [
+            { name: "Small Square", width: 2, height: 2, unit: "in" },
+            { name: "Rectangle", width: 4, height: 2, unit: "in" },
+            { name: "Large Rectangle", width: 4, height: 3, unit: "in" },
+            { name: "Avery 5160", width: 2.625, height: 1, unit: "in" },
+            { name: "Avery 5161", width: 4, height: 1, unit: "in" },
+            { name: "Avery 5163", width: 4, height: 2, unit: "in" }
+        ];
+
+        function App() {
+            const [shopifyConfig, setShopifyConfig] = useState({
+                shopUrl: '',
+                accessToken: ''
+            });
+            const [connected, setConnected] = useState(false);
+            const [products, setProducts] = useState([]);
+            const [selectedProducts, setSelectedProducts] = useState({});
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+            const [labelSize, setLabelSize] = useState('standard');
+            const [selectedStandardSize, setSelectedStandardSize] = useState(0);
+            const [customSize, setCustomSize] = useState({ width: 4, height: 2, unit: 'in' });
+            const [labels, setLabels] = useState([]);
+            const [showPreview, setShowPreview] = useState(false);
+
+            const handleConnect = async () => {
+                if (!shopifyConfig.shopUrl || !shopifyConfig.accessToken) {
+                    setError('Please enter both Shop URL and Access Token');
+                    return;
+                }
+
+                setLoading(true);
+                setError('');
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/shopify/products`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            shopUrl: shopifyConfig.shopUrl,
+                            accessToken: shopifyConfig.accessToken
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to connect to Shopify. Check your credentials.');
+                    }
+
+                    const data = await response.json();
+                    const productList = data.products.map(product => ({
+                        id: product.id,
+                        name: product.title,
+                        sku: product.variants[0]?.sku || product.id.toString(),
+                        variants: product.variants.map(v => ({
+                            id: v.id,
+                            name: v.title !== 'Default Title' ? v.title : product.title,
+                            sku: v.sku || v.id.toString()
+                        }))
+                    }));
+
+                    setProducts(productList);
+                    setConnected(true);
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleProductSelect = (productId, variantId = null) => {
+                setSelectedProducts(prev => {
+                    const key = variantId || productId;
+                    const newSelected = { ...prev };
+                    
+                    if (newSelected[key]) {
+                        delete newSelected[key];
+                    } else {
+                        newSelected[key] = { productId, variantId, quantity: 1 };
+                    }
+                    
+                    return newSelected;
+                });
+            };
+
+            const handleQuantityChange = (key, quantity) => {
+                setSelectedProducts(prev => ({
+                    ...prev,
+                    [key]: { ...prev[key], quantity: parseInt(quantity) || 1 }
+                }));
+            };
+
+            const generateLabels = () => {
+                const labelData = [];
+                
+                Object.entries(selectedProducts).forEach(([key, data]) => {
+                    const product = products.find(p => p.id === data.productId);
+                    let name, sku;
+                    
+                    if (data.variantId) {
+                        const variant = product.variants.find(v => v.id === data.variantId);
+                        name = variant.name;
+                        sku = variant.sku;
+                    } else {
+                        name = product.name;
+                        sku = product.sku;
+                    }
+                    
+                    for (let i = 0; i < data.quantity; i++) {
+                        labelData.push({ name, sku });
+                    }
+                });
+                
+                setLabels(labelData);
+                setShowPreview(true);
+            };
+
+            const getCurrentSize = () => {
+                if (labelSize === 'standard') {
+                    return STANDARD_SIZES[selectedStandardSize];
+                }
+                return customSize;
+            };
+
+            const handlePrint = () => {
+                window.print();
+            };
+
+            useEffect(() => {
+                if (labels.length > 0) {
+                    setTimeout(() => {
+                        labels.forEach((label, index) => {
+                            const canvas = document.getElementById(`barcode-${index}`);
+                            if (canvas) {
+                                JsBarcode(canvas, label.sku, {
+                                    format: "CODE128",
+                                    width: 2,
+                                    height: 40,
+                                    displayValue: true,
+                                    fontSize: 12,
+                                    margin: 5
+                                });
+                            }
+                        });
+                    }, 100);
+                }
+            }, [labels]);
+
+            const selectedCount = Object.keys(selectedProducts).reduce((acc, key) => 
+                acc + selectedProducts[key].quantity, 0
+            );
+
+            return (
+                <div className="app-container">
+                    <div className="header">
+                        <h1>Barcode Label Generator</h1>
+                        <p>Create professional barcode labels from your Shopify inventory</p>
+                    </div>
+
+                    {!connected ? (
+                        <div className="section" style={{ maxWidth: '600px', margin: '0 auto' }}>
+                            <h2 className="section-title">Connect to Shopify</h2>
+                            
+                            {error && <div className="alert alert-error">{error}</div>}
+                            
+                            <div className="form-group">
+                                <label>Shop URL</label>
+                                <input
+                                    type="text"
+                                    placeholder="your-store.myshopify.com"
+                                    value={shopifyConfig.shopUrl}
+                                    onChange={(e) => setShopifyConfig({...shopifyConfig, shopUrl: e.target.value})}
+                                />
+                                <div className="input-hint">Enter your Shopify store URL</div>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Admin API Access Token</label>
+                                <input
+                                    type="password"
+                                    placeholder="shpat_xxxxxxxxxxxxx"
+                                    value={shopifyConfig.accessToken}
+                                    onChange={(e) => setShopifyConfig({...shopifyConfig, accessToken: e.target.value})}
+                                />
+                                <div className="input-hint">Get this from Shopify Admin → Settings → Apps and sales channels</div>
+                            </div>
+                            
+                            <button 
+                                className="btn btn-primary btn-full" 
+                                onClick={handleConnect}
+                                disabled={loading}
+                            >
+                                {loading ? 'Connecting...' : 'Connect to Shopify'}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="main-grid">
+                            <div>
+                                <div className="section">
+                                    <h2 className="section-title">Select Products</h2>
+                                    
+                                    {selectedCount > 0 && (
+                                        <div className="selected-count">
+                                            📦 {selectedCount} label{selectedCount !== 1 ? 's' : ''} selected
+                                        </div>
+                                    )}
+                                    
+                                    <div className="products-container">
+                                        {products.map(product => (
+                                            <div key={product.id}>
+                                                {product.variants.length > 1 ? (
+                                                    product.variants.map(variant => (
+                                                        <div key={variant.id} className="product-item">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={!!selectedProducts[variant.id]}
+                                                                onChange={() => handleProductSelect(product.id, variant.id)}
+                                                            />
+                                                            <div className="product-info">
+                                                                <div className="product-name">{variant.name}</div>
+                                                                <div className="product-sku">SKU: {variant.sku}</div>
+                                                            </div>
+                                                            {selectedProducts[variant.id] && (
+                                                                <input
+                                                                    type="number"
+                                                                    min="1"
+                                                                    className="quantity-input"
+                                                                    value={selectedProducts[variant.id].quantity}
+                                                                    onChange={(e) => handleQuantityChange(variant.id, e.target.value)}
+                                                                />
+                                                            )}
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="product-item">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={!!selectedProducts[product.id]}
+                                                            onChange={() => handleProductSelect(product.id)}
+                                                        />
+                                                        <div className="product-info">
+                                                            <div className="product-name">{product.name}</div>
+                                                            <div className="product-sku">SKU: {product.sku}</div>
+                                                        </div>
+                                                        {selectedProducts[product.id] && (
+                                                            <input
+                                                                type="number"
+                                                                min="1"
+                                                                className="quantity-input"
+                                                                value={selectedProducts[product.id].quantity}
+                                                                onChange={(e) => handleQuantityChange(product.id, e.target.value)}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="section" style={{ marginTop: '2rem' }}>
+                                    <h2 className="section-title">Label Size</h2>
+                                    
+                                    <div className="form-group">
+                                        <label>Size Type</label>
+                                        <select 
+                                            value={labelSize}
+                                            onChange={(e) => setLabelSize(e.target.value)}
+                                        >
+                                            <option value="standard">Standard Size</option>
+                                            <option value="custom">Custom Size</option>
+                                        </select>
+                                    </div>
+
+                                    {labelSize === 'standard' ? (
+                                        <div className="size-grid">
+                                            {STANDARD_SIZES.map((size, index) => (
+                                                <div
+                                                    key={index}
+                                                    className={`size-option ${selectedStandardSize === index ? 'active' : ''}`}
+                                                    onClick={() => setSelectedStandardSize(index)}
+                                                >
+                                                    <div className="size-name">{size.name}</div>
+                                                    <div className="size-dimensions">
+                                                        {size.width}" × {size.height}"
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="custom-size-grid">
+                                            <div className="form-group">
+                                                <label>Width</label>
+                                                <input
+                                                    type="number"
+                                                    step="0.125"
+                                                    value={customSize.width}
+                                                    onChange={(e) => setCustomSize({...customSize, width: parseFloat(e.target.value)})}
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Height</label>
+                                                <input
+                                                    type="number"
+                                                    step="0.125"
+                                                    value={customSize.height}
+                                                    onChange={(e) => setCustomSize({...customSize, height: parseFloat(e.target.value)})}
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Unit</label>
+                                                <select
+                                                    value={customSize.unit}
+                                                    onChange={(e) => setCustomSize({...customSize, unit: e.target.value})}
+                                                >
+                                                    <option value="in">Inches</option>
+                                                    <option value="cm">Centimeters</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="action-buttons">
+                                        <button
+                                            className="btn btn-primary btn-full"
+                                            onClick={generateLabels}
+                                            disabled={selectedCount === 0}
+                                        >
+                                            Generate {selectedCount} Label{selectedCount !== 1 ? 's' : ''}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {showPreview && (
+                                <div className="section print-preview">
+                                    <div className="no-print" style={{ marginBottom: '1.5rem' }}>
+                                        <h2 className="section-title">Label Preview</h2>
+                                        <button 
+                                            className="btn btn-secondary btn-full"
+                                            onClick={handlePrint}
+                                        >
+                                            🖨️ Print Labels
+                                        </button>
+                                    </div>
+                                    
+                                    <div 
+                                        className="label-grid"
+                                        style={{
+                                            gridTemplateColumns: `repeat(auto-fill, minmax(${getCurrentSize().width}${getCurrentSize().unit}, 1fr))`
+                                        }}
+                                    >
+                                        {labels.map((label, index) => (
+                                            <div
+                                                key={index}
+                                                className="label"
+                                                style={{
+                                                    width: `${getCurrentSize().width}${getCurrentSize().unit}`,
+                                                    height: `${getCurrentSize().height}${getCurrentSize().unit}`
+                                                }}
+                                            >
+                                                <div className="label-name">{label.name}</div>
+                                                <svg id={`barcode-${index}`}></svg>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
