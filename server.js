@@ -1,12 +1,25 @@
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
-
+const path = require('path');
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from current directory
+app.use(express.static(__dirname));
+
+// Explicitly serve index.html at root
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', message: 'Barcode Label Generator is running' });
+});
 
 // Proxy endpoint for Shopify products
 app.post('/api/shopify/products', async (req, res) => {
