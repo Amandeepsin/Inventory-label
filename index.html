@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopify Barcode Label Generator</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>Student Tech Shop - Inventory Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Crimson+Text:wght@600&display=swap" rel="stylesheet">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -16,806 +18,1399 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary: #0f172a;
-            --accent: #f59e0b;
-            --bg: #fafaf9;
-            --card: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --error: #ef4444;
-        }
-
         body {
-            font-family: 'DM Sans', sans-serif;
-            background: linear-gradient(135deg, #fafaf9 0%, #f5f5f4 100%);
-            color: var(--text);
-            line-height: 1.6;
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #1a1f3a 0%, #2d3561 50%, #1a1f3a 100%);
             min-height: 100vh;
+            color: #fff;
         }
 
-        .app-container {
+        .nav-tabs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 31, 58, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(79, 172, 254, 0.3);
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-tab {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            color: #fff;
+            border-color: rgba(79, 172, 254, 0.5);
+            background: rgba(79, 172, 254, 0.1);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+            border-color: transparent;
+            font-weight: 700;
+        }
+
+        .nav-user {
+            margin-left: auto;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .nav-logout {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 100px 2rem 2rem;
+        }
+
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
             padding: 2rem;
         }
 
-        .header {
+        .login-card {
+            background: rgba(26, 31, 58, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 700;
             text-align: center;
-            margin-bottom: 3rem;
-            padding: 2rem;
-            background: var(--card);
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
-            border-left: 4px solid var(--accent);
-        }
-
-        .header h1 {
-            font-family: 'Crimson Text', serif;
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
-        }
-
-        .header p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-        }
-
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
             margin-bottom: 2rem;
-        }
-
-        @media (max-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .section {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
-            border: 1px solid var(--border);
-        }
-
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--accent);
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .form-group {
             margin-bottom: 1.5rem;
         }
 
-        label {
+        .form-label {
             display: block;
-            font-weight: 500;
             margin-bottom: 0.5rem;
-            color: var(--text);
-            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
         }
 
-        input[type="text"],
-        input[type="password"],
-        input[type="number"],
-        select {
+        .form-control, .form-select {
             width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--border);
-            border-radius: 8px;
+            padding: 0.9rem 1.2rem;
             font-size: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
             font-family: inherit;
-            transition: all 0.2s;
-            background: var(--bg);
+            transition: all 0.3s ease;
         }
 
-        input:focus,
-        select:focus {
+        .form-control:focus, .form-select:focus {
             outline: none;
-            border-color: var(--accent);
-            background: var(--card);
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+            border-color: #4facfe;
+            background: rgba(79, 172, 254, 0.1);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
         }
 
-        .input-hint {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%234facfe' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 3rem;
         }
 
-        .custom-size-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
         }
 
         .btn {
-            padding: 0.875rem 1.75rem;
-            border: none;
-            border-radius: 8px;
+            padding: 0.9rem 1.5rem;
             font-size: 1rem;
             font-weight: 600;
+            border: none;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            justify-content: center;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-primary {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
-        }
-
-        .btn-primary:hover {
-            background: #d97706;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 8px -1px rgba(245, 158, 11, 0.4);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #1e293b;
-            transform: translateY(-1px);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .btn-full {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
             width: 100%;
         }
 
-        .products-container {
-            max-height: 500px;
-            overflow-y: auto;
-            border: 2px solid var(--border);
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+            border: none;
             border-radius: 8px;
-            background: var(--bg);
-        }
-
-        .products-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .products-container::-webkit-scrollbar-track {
-            background: var(--bg);
-        }
-
-        .products-container::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 4px;
-        }
-
-        .product-item {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: background 0.2s;
-        }
-
-        .product-item:hover {
-            background: var(--card);
-        }
-
-        .product-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
+            padding: 0.7rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 700;
             cursor: pointer;
-            accent-color: var(--accent);
-        }
-
-        .product-info {
-            flex: 1;
-        }
-
-        .product-name {
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 0.25rem;
-        }
-
-        .product-sku {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .quantity-input {
-            width: 80px;
-            padding: 0.5rem;
-            text-align: center;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-
-        .alert-info {
-            background: #dbeafe;
-            color: #1e40af;
-            border: 1px solid #bfdbfe;
-        }
-
-        .selected-count {
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--accent);
-            color: white;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
         }
 
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
+        .btn-start:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
         }
 
-        .spinner {
-            border: 3px solid var(--border);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+        .btn-start:disabled {
+            background: rgba(16, 185, 129, 0.5);
+            cursor: not-allowed;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .print-preview {
-            background: white;
-            padding: 2rem;
+        .alert {
+            padding: 1rem 1.5rem;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
         }
 
-        .label-grid {
-            display: grid;
-            gap: 0.5rem;
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
         }
 
-        .label {
-            border: 1px dashed #ccc;
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .table-container {
+            background: rgba(26, 31, 58, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .search-filter {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(79, 172, 254, 0.1);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem;
-            background: white;
-            page-break-inside: avoid;
+            z-index: 2000;
+            padding: 2rem;
         }
 
-        .label-name {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 0.25rem;
-            word-wrap: break-word;
+        .modal-content {
+            background: linear-gradient(135deg, #1a1f3a 0%, #2d3561 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 900px;
             width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
-        .label svg {
-            max-width: 100%;
-            height: auto;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
         }
 
-        @media print {
-            body {
-                background: white;
-            }
-            
-            .app-container {
-                padding: 0;
-                max-width: 100%;
-            }
-            
-            .header,
-            .section:not(.print-preview),
-            .btn,
-            .no-print {
-                display: none !important;
-            }
-            
-            .main-grid {
-                display: block;
-            }
-            
-            .print-preview {
-                box-shadow: none;
-                padding: 0;
-            }
-            
-            .label {
-                border: none;
-                page-break-inside: avoid;
-            }
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #4facfe;
         }
 
-        .size-option {
-            padding: 1rem;
-            border: 2px solid var(--border);
-            border-radius: 8px;
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 2rem;
             cursor: pointer;
-            transition: all 0.2s;
-            background: var(--bg);
+            line-height: 1;
         }
 
-        .size-option:hover {
-            border-color: var(--accent);
-            background: var(--card);
+        .unit-info {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
+            border: 2px solid #4facfe;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
         }
 
-        .size-option.active {
-            border-color: var(--accent);
-            background: rgba(245, 158, 11, 0.1);
+        .unit-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4facfe;
         }
 
-        .size-grid {
+        .unit-progress {
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.5rem;
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(79, 172, 254, 0.1);
+            border: 2px solid rgba(79, 172, 254, 0.3);
+            border-radius: 12px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #4facfe;
+        }
+
+        .checkbox-group label {
+            cursor: pointer;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .grid-3 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
+        }
+
+        .label-settings {
+            background: rgba(79, 172, 254, 0.1);
+            border: 2px solid rgba(79, 172, 254, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .settings-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #4facfe;
             margin-bottom: 1rem;
         }
 
-        .size-name {
+        .template-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .template-option:hover {
+            border-color: #4facfe;
+            background: rgba(79, 172, 254, 0.1);
+        }
+
+        .template-option.active {
+            border-color: #4facfe;
+            background: rgba(79, 172, 254, 0.2);
+        }
+
+        .template-name {
             font-weight: 600;
-            color: var(--text);
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.3rem;
         }
 
-        .size-dimensions {
+        .template-size {
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: rgba(255, 255, 255, 0.6);
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-
+    <div id="app"></div>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDlBD0g4nBLXAzG1xV-sQp6VHdKxdwWsuk",
+            authDomain: "employee-management-36cb3.firebaseapp.com",
+            projectId: "employee-management-36cb3",
+            storageBucket: "employee-management-36cb3.firebasestorage.app",
+            messagingSenderId: "564697114640",
+            appId: "1:564697114640:web:6d6d0c96d02e4e6b4a2ecc"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+    
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-
-        // API Configuration - Update this with your Railway deployment URL
-        const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000' 
-            : window.location.origin;
-
-        const STANDARD_SIZES = [
-            { name: "Small Square", width: 2, height: 2, unit: "in" },
-            { name: "Rectangle", width: 4, height: 2, unit: "in" },
-            { name: "Large Rectangle", width: 4, height: 3, unit: "in" },
-            { name: "Avery 5160", width: 2.625, height: 1, unit: "in" },
-            { name: "Avery 5161", width: 4, height: 1, unit: "in" },
-            { name: "Avery 5163", width: 4, height: 2, unit: "in" }
+        const { useState, useEffect } = React;
+        
+        const DEVICE_CATEGORIES = [
+            'Window Laptops',
+            'Macbooks',
+            'iPads',
+            'iWatch',
+            'Apple Airpods',
+            'Apple Accessory',
+            'Android Tablets',
+            'Android Phone',
+            'Chromebooks',
+            'iPhone',
+            'Other'
         ];
-
+        
+        const GRADES = ['A+', 'A', 'B+', 'B', 'C+', 'C', 'D', 'F'];
+        
+        const LABEL_TEMPLATES = [
+            { id: '4x2-standard', name: 'Standard 4×2"', width: '4in', height: '2in' },
+            { id: '4x3-extended', name: 'Extended 4×3"', width: '4in', height: '3in' },
+            { id: '4x6-large', name: 'Large 4×6"', width: '4in', height: '6in' },
+            { id: '3x2-compact', name: 'Compact 3×2"', width: '3in', height: '2in' }
+        ];
+        
         function App() {
-            const [shopifyConfig, setShopifyConfig] = useState({
-                shopUrl: '',
-                accessToken: ''
-            });
-            const [connected, setConnected] = useState(false);
-            const [products, setProducts] = useState([]);
-            const [selectedProducts, setSelectedProducts] = useState({});
-            const [loading, setLoading] = useState(false);
-            const [error, setError] = useState('');
-            const [labelSize, setLabelSize] = useState('standard');
-            const [selectedStandardSize, setSelectedStandardSize] = useState(0);
-            const [customSize, setCustomSize] = useState({ width: 4, height: 2, unit: 'in' });
-            const [labels, setLabels] = useState([]);
-            const [showPreview, setShowPreview] = useState(false);
-
-            const handleConnect = async () => {
-                if (!shopifyConfig.shopUrl || !shopifyConfig.accessToken) {
-                    setError('Please enter both Shop URL and Access Token');
+            const [view, setView] = useState('login');
+            const [currentTab, setCurrentTab] = useState('queue');
+            const [employeeName, setEmployeeName] = useState('');
+            
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
+            const [loginError, setLoginError] = useState('');
+            const [loginLoading, setLoginLoading] = useState(false);
+            
+            const [batches, setBatches] = useState([]);
+            const [filteredBatches, setFilteredBatches] = useState([]);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [filterCategory, setFilterCategory] = useState('all');
+            
+            const [selectedBatch, setSelectedBatch] = useState(null);
+            const [currentUnit, setCurrentUnit] = useState(null);
+            const [specs, setSpecs] = useState({});
+            
+            const [deviceName, setDeviceName] = useState('');
+            const [vendor, setVendor] = useState('');
+            const [category, setCategory] = useState('');
+            const [quantity, setQuantity] = useState(1);
+            const [purchasePrice, setPurchasePrice] = useState('');
+            const [notes, setNotes] = useState('');
+            const [sameSKUForAll, setSameSKUForAll] = useState(false);
+            const [batchSKU, setBatchSKU] = useState('');
+            
+            // Label Settings
+            const [labelTemplate, setLabelTemplate] = useState('4x2-standard');
+            
+            const [successMessage, setSuccessMessage] = useState('');
+            const [errorMessage, setErrorMessage] = useState('');
+            
+            useEffect(() => {
+                if (view === 'dashboard') {
+                    loadBatches();
+                }
+            }, [view]);
+            
+            useEffect(() => {
+                filterBatches();
+            }, [batches, searchTerm, filterCategory]);
+            
+            // Load label template from localStorage
+            useEffect(() => {
+                const savedTemplate = localStorage.getItem('labelTemplate');
+                if (savedTemplate) {
+                    setLabelTemplate(savedTemplate);
+                }
+            }, []);
+            
+            const loadBatches = async () => {
+                try {
+                    const snapshot = await db.collection('studentTechBatches').get();
+                    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    data.sort((a, b) => {
+                        const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
+                        const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+                        return dateB - dateA;
+                    });
+                    setBatches(data);
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            };
+            
+            const filterBatches = () => {
+                let filtered = batches;
+                
+                if (searchTerm) {
+                    const term = searchTerm.toLowerCase();
+                    filtered = filtered.filter(b =>
+                        (b.category && b.category.toLowerCase().includes(term)) ||
+                        (b.vendor && b.vendor.toLowerCase().includes(term)) ||
+                        (b.deviceName && b.deviceName.toLowerCase().includes(term))
+                    );
+                }
+                
+                if (filterCategory !== 'all') {
+                    filtered = filtered.filter(b => b.category === filterCategory);
+                }
+                
+                setFilteredBatches(filtered);
+            };
+            
+            const handleLogin = async (e) => {
+                e.preventDefault();
+                setLoginError('');
+                setLoginLoading(true);
+                
+                try {
+                    const snapshot = await db.collection('employees')
+                        .where('username', '==', username.trim())
+                        .get();
+                    
+                    if (snapshot.empty || snapshot.docs[0].data().password !== password) {
+                        setLoginError('Invalid username or password');
+                        setLoginLoading(false);
+                        return;
+                    }
+                    
+                    setEmployeeName(snapshot.docs[0].data().name || username);
+                    setView('dashboard');
+                } catch (error) {
+                    setLoginError('Login failed');
+                } finally {
+                    setLoginLoading(false);
+                }
+            };
+            
+            const handleLogout = () => {
+                setView('login');
+                setEmployeeName('');
+                setUsername('');
+                setPassword('');
+            };
+            
+            const handleNewEntry = async () => {
+                if (!deviceName || !vendor || !category || !quantity) {
+                    setErrorMessage('⚠️ Please fill required fields');
+                    setTimeout(() => setErrorMessage(''), 3000);
                     return;
                 }
-
-                setLoading(true);
-                setError('');
-
+                
+                if (sameSKUForAll && !batchSKU) {
+                    setErrorMessage('⚠️ Please enter SKU for all units');
+                    setTimeout(() => setErrorMessage(''), 3000);
+                    return;
+                }
+                
                 try {
-                    const response = await fetch(`${API_BASE_URL}/api/shopify/products`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            shopUrl: shopifyConfig.shopUrl,
-                            accessToken: shopifyConfig.accessToken
-                        })
+                    const timestamp = new Date().toISOString();
+                    const qty = parseInt(quantity);
+                    
+                    await db.collection('studentTechBatches').add({
+                        deviceName: deviceName.trim(),
+                        vendor: vendor.trim(),
+                        category,
+                        quantity: qty,
+                        purchasePrice: parseFloat(purchasePrice) || 0,
+                        notes: notes.trim(),
+                        sameSKUForAll,
+                        batchSKU: sameSKUForAll ? batchSKU.trim() : '',
+                        createdBy: employeeName,
+                        timestamp,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Failed to connect to Shopify. Check your credentials.');
-                    }
-
-                    const data = await response.json();
-                    const productList = data.products.map(product => ({
-                        id: product.id,
-                        name: product.title,
-                        sku: product.variants[0]?.sku || product.id.toString(),
-                        variants: product.variants.map(v => ({
-                            id: v.id,
-                            name: v.title !== 'Default Title' ? v.title : product.title,
-                            sku: v.sku || v.id.toString()
-                        }))
-                    }));
-
-                    setProducts(productList);
-                    setConnected(true);
-                } catch (err) {
-                    setError(err.message);
-                } finally {
-                    setLoading(false);
+                    
+                    setSuccessMessage(`✅ Batch of ${qty} ${deviceName} created!`);
+                    setTimeout(() => setSuccessMessage(''), 3000);
+                    
+                    setDeviceName('');
+                    setVendor('');
+                    setCategory('');
+                    setQuantity(1);
+                    setPurchasePrice('');
+                    setNotes('');
+                    setSameSKUForAll(false);
+                    setBatchSKU('');
+                    setCurrentTab('queue');
+                    
+                    loadBatches();
+                } catch (error) {
+                    setErrorMessage(`❌ ${error.message}`);
+                    setTimeout(() => setErrorMessage(''), 5000);
                 }
             };
-
-            const handleProductSelect = (productId, variantId = null) => {
-                setSelectedProducts(prev => {
-                    const key = variantId || productId;
-                    const newSelected = { ...prev };
-                    
-                    if (newSelected[key]) {
-                        delete newSelected[key];
-                    } else {
-                        newSelected[key] = { productId, variantId, quantity: 1 };
-                    }
-                    
-                    return newSelected;
-                });
-            };
-
-            const handleQuantityChange = (key, quantity) => {
-                setSelectedProducts(prev => ({
-                    ...prev,
-                    [key]: { ...prev[key], quantity: parseInt(quantity) || 1 }
-                }));
-            };
-
-            const generateLabels = () => {
-                const labelData = [];
+            
+            const getSpecFields = (category) => {
+                let fields = [];
                 
-                Object.entries(selectedProducts).forEach(([key, data]) => {
-                    const product = products.find(p => p.id === data.productId);
-                    let name, sku;
-                    
-                    if (data.variantId) {
-                        const variant = product.variants.find(v => v.id === data.variantId);
-                        name = variant.name;
-                        sku = variant.sku;
-                    } else {
-                        name = product.name;
-                        sku = product.sku;
-                    }
-                    
-                    for (let i = 0; i < data.quantity; i++) {
-                        labelData.push({ name, sku });
-                    }
-                });
-                
-                setLabels(labelData);
-                setShowPreview(true);
-            };
-
-            const getCurrentSize = () => {
-                if (labelSize === 'standard') {
-                    return STANDARD_SIZES[selectedStandardSize];
+                switch(category) {
+                    case 'Window Laptops':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'model', label: 'Model', type: 'text', required: true },
+                            { name: 'processor', label: 'Processor', type: 'text', required: true },
+                            { name: 'ram', label: 'RAM', type: 'text', required: true },
+                            { name: 'storage', label: 'Storage', type: 'text', required: true },
+                            { name: 'touchscreen', label: 'Touch Screen', type: 'select', options: ['No Touch', 'Touch'], required: true },
+                            { name: 'screenSize', label: 'Screen Size', type: 'text', required: true }
+                        ];
+                        break;
+                    case 'iPhone':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'model', label: 'Model', type: 'text', required: true },
+                            { name: 'storage', label: 'Storage', type: 'text', required: true },
+                            { name: 'color', label: 'Color', type: 'text', required: true },
+                            { name: 'imei', label: 'IMEI', type: 'text', required: true },
+                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                        ];
+                        break;
+                    case 'iPads':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'model', label: 'Model', type: 'text', required: true },
+                            { name: 'storage', label: 'Storage', type: 'text', required: true },
+                            { name: 'connectivity', label: 'Connectivity', type: 'select', options: ['Wifi Only', 'Cellular + Wifi'], required: true },
+                            { name: 'color', label: 'Color', type: 'text', required: true },
+                            { name: 'imei', label: 'IMEI', type: 'text', required: false },
+                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                        ];
+                        break;
+                    case 'iWatch':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'model', label: 'Model', type: 'text', required: true },
+                            { name: 'dialSize', label: 'Dial Size', type: 'text', required: true },
+                            { name: 'connectivity', label: 'Connectivity', type: 'select', options: ['GPS', 'Cellular + GPS'], required: true },
+                            { name: 'color', label: 'Color', type: 'text', required: true },
+                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                        ];
+                        break;
+                    case 'Macbooks':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'model', label: 'Model', type: 'text', required: true },
+                            { name: 'year', label: 'Year', type: 'text', required: true },
+                            { name: 'chip', label: 'Chip', type: 'text', required: true },
+                            { name: 'ram', label: 'RAM', type: 'text', required: true },
+                            { name: 'storage', label: 'Storage', type: 'text', required: true },
+                            { name: 'screenSize', label: 'Screen Size', type: 'text', required: true },
+                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                        ];
+                        break;
+                    case 'Apple Airpods':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'model', label: 'Model', type: 'text', required: true },
+                            { name: 'condition', label: 'Condition', type: 'select', options: ['New', 'Open Box', 'Refurbished'], required: true },
+                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                        ];
+                        break;
+                    case 'Android Tablets':
+                    case 'Android Phone':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'model', label: 'Model', type: 'text', required: true },
+                            { name: 'ram', label: 'RAM', type: 'text', required: true },
+                            { name: 'storage', label: 'Storage', type: 'text', required: true },
+                            { name: 'color', label: 'Color', type: 'text', required: true },
+                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                        ];
+                        break;
+                    case 'Chromebooks':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'model', label: 'Model', type: 'text', required: true },
+                            { name: 'processor', label: 'Processor', type: 'text', required: true },
+                            { name: 'ram', label: 'RAM', type: 'text', required: true },
+                            { name: 'storage', label: 'Storage', type: 'text', required: true },
+                            { name: 'screenSize', label: 'Screen Size', type: 'text', required: true },
+                            { name: 'touchscreen', label: 'Touch Screen', type: 'select', options: ['No Touch', 'Touch'], required: true }
+                        ];
+                        break;
+                    case 'Other':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'model', label: 'Model', type: 'text', required: true },
+                            { name: 'description', label: 'Description', type: 'textarea', required: true }
+                        ];
+                        break;
+                    default:
+                        fields = [];
                 }
-                return customSize;
+                
+                // Add SKU field at the bottom for ALL categories
+                fields.push({ name: 'sku', label: 'SKU *', type: 'text', required: true });
+                
+                return fields;
             };
-
-            const handlePrint = () => {
-                window.print();
+            
+            const generateSKU = (category) => {
+                const prefix = category.substring(0, 3).toUpperCase().replace(/\s/g, '');
+                const timestamp = Date.now().toString().slice(-6);
+                const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                return `${prefix}-${timestamp}-${random}`;
             };
-
-            useEffect(() => {
-                if (labels.length > 0) {
-                    setTimeout(() => {
-                        labels.forEach((label, index) => {
-                            const canvas = document.getElementById(`barcode-${index}`);
-                            if (canvas) {
-                                JsBarcode(canvas, label.sku, {
-                                    format: "CODE128",
-                                    width: 2,
-                                    height: 40,
-                                    displayValue: true,
-                                    fontSize: 12,
-                                    margin: 5
-                                });
-                            }
+            
+            const startProcessing = async (batch) => {
+                if (!batch.units) {
+                    const units = [];
+                    for (let i = 1; i <= batch.quantity; i++) {
+                        units.push({
+                            unitNumber: i,
+                            completed: false,
+                            specs: {}
                         });
-                    }, 100);
+                    }
+                    
+                    await db.collection('studentTechBatches').doc(batch.id).update({ units });
+                    batch.units = units;
                 }
-            }, [labels]);
-
-            const selectedCount = Object.keys(selectedProducts).reduce((acc, key) => 
-                acc + selectedProducts[key].quantity, 0
-            );
-
-            return (
-                <div className="app-container">
-                    <div className="header">
-                        <h1>Barcode Label Generator</h1>
-                        <p>Create professional barcode labels from your Shopify inventory</p>
-                    </div>
-
-                    {!connected ? (
-                        <div className="section" style={{ maxWidth: '600px', margin: '0 auto' }}>
-                            <h2 className="section-title">Connect to Shopify</h2>
-                            
-                            {error && <div className="alert alert-error">{error}</div>}
-                            
-                            <div className="form-group">
-                                <label>Shop URL</label>
-                                <input
-                                    type="text"
-                                    placeholder="your-store.myshopify.com"
-                                    value={shopifyConfig.shopUrl}
-                                    onChange={(e) => setShopifyConfig({...shopifyConfig, shopUrl: e.target.value})}
-                                />
-                                <div className="input-hint">Enter your Shopify store URL</div>
-                            </div>
-                            
-                            <div className="form-group">
-                                <label>Admin API Access Token</label>
-                                <input
-                                    type="password"
-                                    placeholder="shpat_xxxxxxxxxxxxx"
-                                    value={shopifyConfig.accessToken}
-                                    onChange={(e) => setShopifyConfig({...shopifyConfig, accessToken: e.target.value})}
-                                />
-                                <div className="input-hint">Get this from Shopify Admin → Settings → Apps and sales channels</div>
-                            </div>
-                            
-                            <button 
-                                className="btn btn-primary btn-full" 
-                                onClick={handleConnect}
-                                disabled={loading}
-                            >
-                                {loading ? 'Connecting...' : 'Connect to Shopify'}
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="main-grid">
-                            <div>
-                                <div className="section">
-                                    <h2 className="section-title">Select Products</h2>
-                                    
-                                    {selectedCount > 0 && (
-                                        <div className="selected-count">
-                                            📦 {selectedCount} label{selectedCount !== 1 ? 's' : ''} selected
-                                        </div>
-                                    )}
-                                    
-                                    <div className="products-container">
-                                        {products.map(product => (
-                                            <div key={product.id}>
-                                                {product.variants.length > 1 ? (
-                                                    product.variants.map(variant => (
-                                                        <div key={variant.id} className="product-item">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={!!selectedProducts[variant.id]}
-                                                                onChange={() => handleProductSelect(product.id, variant.id)}
-                                                            />
-                                                            <div className="product-info">
-                                                                <div className="product-name">{variant.name}</div>
-                                                                <div className="product-sku">SKU: {variant.sku}</div>
-                                                            </div>
-                                                            {selectedProducts[variant.id] && (
-                                                                <input
-                                                                    type="number"
-                                                                    min="1"
-                                                                    className="quantity-input"
-                                                                    value={selectedProducts[variant.id].quantity}
-                                                                    onChange={(e) => handleQuantityChange(variant.id, e.target.value)}
-                                                                />
-                                                            )}
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div className="product-item">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={!!selectedProducts[product.id]}
-                                                            onChange={() => handleProductSelect(product.id)}
-                                                        />
-                                                        <div className="product-info">
-                                                            <div className="product-name">{product.name}</div>
-                                                            <div className="product-sku">SKU: {product.sku}</div>
-                                                        </div>
-                                                        {selectedProducts[product.id] && (
-                                                            <input
-                                                                type="number"
-                                                                min="1"
-                                                                className="quantity-input"
-                                                                value={selectedProducts[product.id].quantity}
-                                                                onChange={(e) => handleQuantityChange(product.id, e.target.value)}
-                                                            />
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
+                
+                const incompleteUnit = batch.units.find(u => !u.completed);
+                if (!incompleteUnit) {
+                    alert('All units completed!');
+                    return;
+                }
+                
+                setSelectedBatch(batch);
+                setCurrentUnit(incompleteUnit);
+                
+                // Prefill specs based on batch settings
+                let prefilledSpecs = {};
+                
+                // If same SKU for all, prefill SKU
+                if (batch.sameSKUForAll && batch.batchSKU) {
+                    prefilledSpecs.sku = batch.batchSKU;
+                }
+                
+                // If not Unit 1 and sameSKUForAll is true, autofill from Unit 1
+                if (incompleteUnit.unitNumber > 1 && batch.sameSKUForAll && batch.units) {
+                    const unit1 = batch.units.find(u => u.unitNumber === 1);
+                    if (unit1 && unit1.completed && unit1.specs) {
+                        prefilledSpecs = { ...unit1.specs };
+                    }
+                }
+                
+                setSpecs(prefilledSpecs);
+            };
+            
+            const handleProcessUnit = async () => {
+                const fields = getSpecFields(selectedBatch.category);
+                const missing = fields.filter(f => f.required && !specs[f.name]);
+                
+                if (missing.length > 0) {
+                    setErrorMessage('⚠️ Fill all required fields');
+                    setTimeout(() => setErrorMessage(''), 3000);
+                    return;
+                }
+                
+                try {
+                    const sku = generateSKU(selectedBatch.category);
+                    
+                    const updatedUnits = selectedBatch.units.map(u =>
+                        u.unitNumber === currentUnit.unitNumber
+                            ? { ...u, completed: true, specs: { ...specs, sku }, processedBy: employeeName, processedAt: new Date().toISOString() }
+                            : u
+                    );
+                    
+                    await db.collection('studentTechBatches').doc(selectedBatch.id).update({
+                        units: updatedUnits
+                    });
+                    
+                    printLabel(selectedBatch.category, specs);
+                    
+                    const completedCount = updatedUnits.filter(u => u.completed).length;
+                    setSuccessMessage(`✅ Unit ${currentUnit.unitNumber}/${selectedBatch.quantity} complete! (${completedCount}/${selectedBatch.quantity} total)`);
+                    setTimeout(() => setSuccessMessage(''), 3000);
+                    
+                    setSelectedBatch(null);
+                    setCurrentUnit(null);
+                    setSpecs({});
+                    loadBatches();
+                } catch (error) {
+                    setErrorMessage(`❌ ${error.message}`);
+                    setTimeout(() => setErrorMessage(''), 3000);
+                }
+            };
+            
+            const printLabel = (category, specs) => {
+                const template = LABEL_TEMPLATES.find(t => t.id === labelTemplate) || LABEL_TEMPLATES[0];
+                const brand = specs.brand || '';
+                const model = specs.model || '';
+                const productName = brand && model ? `${brand} ${model}` : (brand || model || category);
+                const productType = category;
+                const sku = specs.sku || 'NO-SKU';
+                const grade = specs.grade || '';
+                
+                let infoRows = [];
+                if (specs.storage) infoRows.push({ label: 'Storage', value: specs.storage });
+                if (specs.color) infoRows.push({ label: 'Color', value: specs.color });
+                if (specs.ram) infoRows.push({ label: 'RAM', value: specs.ram });
+                if (specs.processor) infoRows.push({ label: 'CPU', value: specs.processor });
+                if (specs.chip) infoRows.push({ label: 'Chip', value: specs.chip });
+                if (specs.imei) infoRows.push({ label: 'IMEI', value: specs.imei });
+                if (specs.year) infoRows.push({ label: 'Year', value: specs.year });
+                if (specs.screenSize) infoRows.push({ label: 'Screen', value: specs.screenSize });
+                if (specs.dialSize) infoRows.push({ label: 'Size', value: specs.dialSize });
+                if (specs.connectivity) infoRows.push({ label: 'Network', value: specs.connectivity });
+                if (specs.touchscreen) infoRows.push({ label: 'Touch', value: specs.touchscreen });
+                if (specs.condition) infoRows.push({ label: 'Condition', value: specs.condition });
+                
+                const infoRowsHTML = infoRows.map(r => 
+                    `<div class="info-row"><span class="info-label">${r.label}:</span><span class="info-value">${r.value}</span></div>`
+                ).join('');
+                
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Label - ${productName}</title>
+                        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+                        <style>
+                            * { margin: 0; padding: 0; box-sizing: border-box; }
+                            body {
+                                font-family: 'Arial', sans-serif;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                padding: 20px;
+                                background: #f5f5f5;
+                            }
+                            .label {
+                                background: white;
+                                border: 3px solid #000;
+                                padding: 10px;
+                                text-align: center;
+                                width: ` + template.width + `;
+                                height: ` + template.height + `;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                                display: flex;
+                                flex-direction: column;
+                                overflow: hidden;
+                            }
+                            .company-name {
+                                font-size: 13px;
+                                font-weight: bold;
+                                margin-bottom: 5px;
+                                padding-bottom: 4px;
+                                border-bottom: 3px solid #000;
+                                color: #000;
+                            }
+                            .product-name {
+                                font-size: 11px;
+                                font-weight: bold;
+                                margin-bottom: 2px;
+                                color: #000;
+                                line-height: 1.2;
+                            }
+                            .product-type {
+                                font-size: 9px;
+                                font-weight: bold;
+                                color: #000;
+                                margin-bottom: 3px;
+                            }
+                            .label-content {
+                                display: flex;
+                                gap: 8px;
+                                align-items: flex-start;
+                                justify-content: space-between;
+                                flex: 1;
+                            }
+                            .label-left {
+                                flex: 1;
+                                text-align: left;
+                                min-width: 0;
+                            }
+                            #barcode {
+                                flex-shrink: 0;
+                                width: 110px;
+                                height: auto;
+                            }
+                            .info-row {
+                                display: flex;
+                                justify-content: space-between;
+                                padding: 2px 0;
+                                border-bottom: 2px solid #000;
+                                font-size: 8px;
+                                line-height: 1.3;
+                            }
+                            .info-label {
+                                font-weight: bold;
+                                color: #000;
+                                white-space: nowrap;
+                            }
+                            .info-value {
+                                color: #000;
+                                font-weight: bold;
+                                font-family: monospace;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
+                            .sku {
+                                font-size: 10px;
+                                font-weight: bold;
+                                font-family: monospace;
+                                margin: 3px 0;
+                                padding: 3px;
+                                background: #f0f0f0;
+                                border: 2px solid #000;
+                                border-radius: 3px;
+                                color: #000;
+                            }
+                            .grade-badge {
+                                display: inline-block;
+                                padding: 2px 8px;
+                                background: #4facfe;
+                                color: white;
+                                border-radius: 8px;
+                                font-weight: bold;
+                                font-size: 8px;
+                                margin: 3px 0;
+                            }
+                            .print-button {
+                                margin-top: 20px;
+                                padding: 12px 30px;
+                                font-size: 16px;
+                                font-weight: bold;
+                                background: #4facfe;
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+                            }
+                            .print-button:hover { background: #3d96e8; }
+                            @media print {
+                                @page { size: ` + template.width + ` ` + template.height + `; margin: 0; }
+                                body { background: white; padding: 0; margin: 0; }
+                                .label { 
+                                    border: 3px solid #000; 
+                                    box-shadow: none; 
+                                    width: ` + template.width + `; 
+                                    height: ` + template.height + `; 
+                                    margin: 0; 
+                                    page-break-after: always;
+                                    -webkit-print-color-adjust: exact;
+                                    print-color-adjust: exact;
+                                }
+                                * {
+                                    -webkit-print-color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                    color-adjust: exact !important;
+                                }
+                                .company-name, .product-name, .product-type, 
+                                .sku, .info-label, .info-value {
+                                    color: #000 !important;
+                                    font-weight: bold !important;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="label">
+                            <div class="company-name">STUDENT TECH SHOP</div>
+                            <div class="label-content">
+                                <div class="label-left">
+                                    <div class="product-name">${productName}</div>
+                                    <div class="product-type">${productType}</div>
+                                    ${sku ? '<div class="sku">' + sku + '</div>' : ''}
+                                    ${grade ? '<div class="grade-badge">' + grade + '</div>' : ''}
+                                    <div style="margin-top: 3px; font-size: 7px;">${infoRowsHTML}</div>
                                 </div>
-
-                                <div className="section" style={{ marginTop: '2rem' }}>
-                                    <h2 className="section-title">Label Size</h2>
-                                    
+                                <svg id="barcode"></svg>
+                            </div>
+                        </div>
+                        <script>
+                            JsBarcode("#barcode", "${sku || 'NO-SKU'}", {
+                                format: "CODE128",
+                                width: 1.5,
+                                height: 55,
+                                displayValue: true,
+                                fontSize: 10,
+                                margin: 2,
+                                background: "#ffffff",
+                                lineColor: "#000000"
+                            });
+                            
+                            // Auto-print when page loads
+                            window.onload = function() {
+                                setTimeout(function() {
+                                    window.print();
+                                }, 500);
+                            };
+                            
+                            // Auto-close after printing
+                            window.onafterprint = function() {
+                                setTimeout(function() {
+                                    window.close();
+                                }, 1000);
+                            };
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            };
+            
+            
+            const handleTemplateChange = (templateId) => {
+                setLabelTemplate(templateId);
+                localStorage.setItem('labelTemplate', templateId);
+            };
+            
+            const getCompletedCount = (batch) => {
+                return batch.units ? batch.units.filter(u => u.completed).length : 0;
+            };
+            
+            if (view === 'login') {
+                return (
+                    <div className="login-container">
+                        <div className="login-card">
+                            <h1 className="login-title">🎓 Student Tech Shop</h1>
+                            <form onSubmit={handleLogin}>
+                                <div className="form-group">
+                                    <label className="form-label">Username</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        required
+                                        autoFocus
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Password</label>
+                                    <input
+                                        type="password"
+                                        className="form-control"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                {loginError && <div className="alert alert-error">{loginError}</div>}
+                                <button type="submit" className="btn btn-primary" disabled={loginLoading}>
+                                    {loginLoading ? 'Logging in...' : 'Login'}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            }
+            
+            return (
+                <div>
+                    <div className="nav-tabs">
+                        <button
+                            className={`nav-tab ${currentTab === 'queue' ? 'active' : ''}`}
+                            onClick={() => setCurrentTab('queue')}
+                        >
+                            📊 Processing Queue
+                        </button>
+                        <button
+                            className={`nav-tab ${currentTab === 'add' ? 'active' : ''}`}
+                            onClick={() => setCurrentTab('add')}
+                        >
+                            ➕ Add New
+                        </button>
+                        <button
+                            className={`nav-tab ${currentTab === 'settings' ? 'active' : ''}`}
+                            onClick={() => setCurrentTab('settings')}
+                        >
+                            ⚙️ Label Settings
+                        </button>
+                        <span className="nav-user">👤 {employeeName}</span>
+                        <button className="nav-tab nav-logout" onClick={handleLogout}>
+                            Logout
+                        </button>
+                    </div>
+                    
+                    <div className="container">
+                        {successMessage && <div className="alert alert-success">{successMessage}</div>}
+                        {errorMessage && <div className="alert alert-error">{errorMessage}</div>}
+                        
+                        {currentTab === 'add' && (
+                            <div className="modal-content" style={{marginTop: 0}}>
+                                <h2 className="modal-title">Add New Inventory Batch</h2>
+                                <div className="grid-2">
                                     <div className="form-group">
-                                        <label>Size Type</label>
-                                        <select 
-                                            value={labelSize}
-                                            onChange={(e) => setLabelSize(e.target.value)}
+                                        <label className="form-label">Device Name *</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={deviceName}
+                                            onChange={(e) => setDeviceName(e.target.value)}
+                                            placeholder="e.g., Dell Latitude 5420"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Vendor *</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={vendor}
+                                            onChange={(e) => setVendor(e.target.value)}
+                                            placeholder="Enter vendor name"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Category *</label>
+                                        <select
+                                            className="form-select"
+                                            value={category}
+                                            onChange={(e) => setCategory(e.target.value)}
                                         >
-                                            <option value="standard">Standard Size</option>
-                                            <option value="custom">Custom Size</option>
+                                            <option value="">Select Category</option>
+                                            {DEVICE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                                         </select>
                                     </div>
-
-                                    {labelSize === 'standard' ? (
-                                        <div className="size-grid">
-                                            {STANDARD_SIZES.map((size, index) => (
-                                                <div
-                                                    key={index}
-                                                    className={`size-option ${selectedStandardSize === index ? 'active' : ''}`}
-                                                    onClick={() => setSelectedStandardSize(index)}
-                                                >
-                                                    <div className="size-name">{size.name}</div>
-                                                    <div className="size-dimensions">
-                                                        {size.width}" × {size.height}"
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="custom-size-grid">
-                                            <div className="form-group">
-                                                <label>Width</label>
-                                                <input
-                                                    type="number"
-                                                    step="0.125"
-                                                    value={customSize.width}
-                                                    onChange={(e) => setCustomSize({...customSize, width: parseFloat(e.target.value)})}
-                                                />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Height</label>
-                                                <input
-                                                    type="number"
-                                                    step="0.125"
-                                                    value={customSize.height}
-                                                    onChange={(e) => setCustomSize({...customSize, height: parseFloat(e.target.value)})}
-                                                />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Unit</label>
-                                                <select
-                                                    value={customSize.unit}
-                                                    onChange={(e) => setCustomSize({...customSize, unit: e.target.value})}
-                                                >
-                                                    <option value="in">Inches</option>
-                                                    <option value="cm">Centimeters</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="action-buttons">
-                                        <button
-                                            className="btn btn-primary btn-full"
-                                            onClick={generateLabels}
-                                            disabled={selectedCount === 0}
-                                        >
-                                            Generate {selectedCount} Label{selectedCount !== 1 ? 's' : ''}
-                                        </button>
+                                    <div className="form-group">
+                                        <label className="form-label">Quantity *</label>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            value={quantity}
+                                            onChange={(e) => setQuantity(e.target.value)}
+                                            min="1"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Purchase Price (per unit)</label>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            value={purchasePrice}
+                                            onChange={(e) => setPurchasePrice(e.target.value)}
+                                            placeholder="0.00"
+                                            step="0.01"
+                                        />
                                     </div>
                                 </div>
-                            </div>
-
-                            {showPreview && (
-                                <div className="section print-preview">
-                                    <div className="no-print" style={{ marginBottom: '1.5rem' }}>
-                                        <h2 className="section-title">Label Preview</h2>
-                                        <button 
-                                            className="btn btn-secondary btn-full"
-                                            onClick={handlePrint}
-                                        >
-                                            🖨️ Print Labels
-                                        </button>
+                                
+                                <div className="checkbox-group">
+                                    <input
+                                        type="checkbox"
+                                        id="sameSKU"
+                                        checked={sameSKUForAll}
+                                        onChange={(e) => setSameSKUForAll(e.target.checked)}
+                                    />
+                                    <label htmlFor="sameSKU">Keep same SKU for all units?</label>
+                                </div>
+                                
+                                {sameSKUForAll && (
+                                    <div className="form-group">
+                                        <label className="form-label">Enter SKU for All Units *</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={batchSKU}
+                                            onChange={(e) => setBatchSKU(e.target.value)}
+                                            placeholder="Enter SKU that will be used for all units"
+                                        />
                                     </div>
-                                    
-                                    <div 
-                                        className="label-grid"
-                                        style={{
-                                            gridTemplateColumns: `repeat(auto-fill, minmax(${getCurrentSize().width}${getCurrentSize().unit}, 1fr))`
-                                        }}
-                                    >
-                                        {labels.map((label, index) => (
+                                )}
+                                
+                                <div className="form-group">
+                                    <label className="form-label">Notes</label>
+                                    <textarea
+                                        className="form-control"
+                                        value={notes}
+                                        onChange={(e) => setNotes(e.target.value)}
+                                        placeholder="Any additional notes..."
+                                    />
+                                </div>
+                                <button className="btn btn-primary" onClick={handleNewEntry}>
+                                    Create Batch of {quantity} Unit(s)
+                                </button>
+                            </div>
+                        )}
+                        
+                        {currentTab === 'settings' && (
+                            <div className="modal-content" style={{marginTop: 0}}>
+                                <h2 className="modal-title">Label Print Settings</h2>
+                                <div className="label-settings">
+                                    <div className="settings-title">Select Label Template</div>
+                                    <div className="grid-3">
+                                        {LABEL_TEMPLATES.map(template => (
                                             <div
-                                                key={index}
-                                                className="label"
-                                                style={{
-                                                    width: `${getCurrentSize().width}${getCurrentSize().unit}`,
-                                                    height: `${getCurrentSize().height}${getCurrentSize().unit}`
-                                                }}
+                                                key={template.id}
+                                                className={`template-option ${labelTemplate === template.id ? 'active' : ''}`}
+                                                onClick={() => handleTemplateChange(template.id)}
                                             >
-                                                <div className="label-name">{label.name}</div>
-                                                <svg id={`barcode-${index}`}></svg>
+                                                <div className="template-name">{template.name}</div>
+                                                <div className="template-size">{template.width} × {template.height}</div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
-                            )}
+                                
+                                <div style={{marginTop: '2rem', padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', border: '2px solid rgba(16, 185, 129, 0.3)'}}>
+                                    <div style={{fontWeight: 700, marginBottom: '0.5rem', color: '#10b981'}}>
+                                        ✅ Current Template: {LABEL_TEMPLATES.find(t => t.id === labelTemplate)?.name}
+                                    </div>
+                                    <div style={{fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)'}}>
+                                        This template will be used for all printed labels. Make sure your printer supports the selected size.
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {currentTab === 'queue' && (
+                            <div className="table-container">
+                                <div className="search-filter" style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
+                                    <input
+                                        type="text"
+                                        className="search-input"
+                                        placeholder="🔍 Search by device, category or vendor..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                    <select
+                                        className="form-select"
+                                        style={{maxWidth: '200px'}}
+                                        value={filterCategory}
+                                        onChange={(e) => setFilterCategory(e.target.value)}
+                                    >
+                                        <option value="all">All Categories</option>
+                                        {DEVICE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                                
+                                {filteredBatches.length === 0 ? (
+                                    <div style={{textAlign: 'center', padding: '3rem', color: 'rgba(255,255,255,0.5)'}}>
+                                        No batches found
+                                    </div>
+                                ) : (
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Device Name</th>
+                                                <th>Category</th>
+                                                <th>Vendor</th>
+                                                <th>Progress</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredBatches.map(batch => {
+                                                const completedCount = getCompletedCount(batch);
+                                                const isComplete = completedCount === batch.quantity;
+                                                const progressColor = isComplete ? '#10b981' : completedCount > 0 ? '#4facfe' : 'rgba(255,255,255,0.3)';
+                                                
+                                                return (
+                                                    <tr key={batch.id}>
+                                                        <td style={{fontWeight: 600}}>{batch.deviceName || 'N/A'}</td>
+                                                        <td>{batch.category}</td>
+                                                        <td>{batch.vendor}</td>
+                                                        <td style={{fontWeight: 600}}>
+                                                            <span style={{color: progressColor}}>
+                                                                {completedCount}/{batch.quantity}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <button
+                                                                className="btn-start"
+                                                                onClick={() => startProcessing(batch)}
+                                                                disabled={isComplete}
+                                                            >
+                                                                {isComplete ? 'Completed ✓' : 'Process →'}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                    
+                    {selectedBatch && currentUnit && (
+                        <div className="modal-overlay" onClick={() => { setSelectedBatch(null); setCurrentUnit(null); }}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">{selectedBatch.deviceName || selectedBatch.category}</h2>
+                                    <button className="modal-close" onClick={() => { setSelectedBatch(null); setCurrentUnit(null); }}>&times;</button>
+                                </div>
+                                
+                                <div className="unit-info">
+                                    <div className="unit-number">Processing Unit {currentUnit.unitNumber} of {selectedBatch.quantity}</div>
+                                    <div className="unit-progress">
+                                        {getCompletedCount(selectedBatch)} completed • {selectedBatch.quantity - getCompletedCount(selectedBatch)} remaining
+                                    </div>
+                                    {selectedBatch.sameSKUForAll && currentUnit.unitNumber > 1 && (
+                                        <div style={{marginTop: '0.5rem', fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)'}}>
+                                            ℹ️ Fields auto-filled from Unit 1 (editable)
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="grid-2">
+                                    {getSpecFields(selectedBatch.category).map(field => (
+                                        <div key={field.name} className="form-group">
+                                            <label className="form-label">{field.label} {field.required && '*'}</label>
+                                            {field.type === 'select' ? (
+                                                <select
+                                                    className="form-select"
+                                                    value={specs[field.name] || ''}
+                                                    onChange={(e) => setSpecs({...specs, [field.name]: e.target.value})}
+                                                >
+                                                    <option value="">Select {field.label}</option>
+                                                    {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                                </select>
+                                            ) : field.type === 'textarea' ? (
+                                                <textarea
+                                                    className="form-control"
+                                                    value={specs[field.name] || ''}
+                                                    onChange={(e) => setSpecs({...specs, [field.name]: e.target.value})}
+                                                />
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    value={specs[field.name] || ''}
+                                                    onChange={(e) => setSpecs({...specs, [field.name]: e.target.value})}
+                                                    placeholder={field.name === 'sku' ? (selectedBatch.sameSKUForAll ? 'SKU (from batch)' : 'Enter SKU manually') : ''}
+                                                    readOnly={field.name === 'sku' && selectedBatch.sameSKUForAll}
+                                                />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                
+                                <button className="btn btn-success" style={{marginTop: '2rem', width: '100%'}} onClick={handleProcessUnit}>
+                                    Complete Unit & Print Label
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
             );
         }
-
-        ReactDOM.render(<App />, document.getElementById('root'));
+        
+        ReactDOM.render(<App />, document.getElementById('app'));
     </script>
 </body>
 </html>
