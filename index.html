@@ -213,6 +213,181 @@
             background: rgba(16, 185, 129, 0.5);
             cursor: not-allowed;
         }
+        
+        .btn-reprint {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-left: 0.5rem;
+        }
+        
+        .btn-reprint:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-reprint:disabled {
+            background: rgba(16, 185, 129, 0.3);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-left: 0.5rem;
+        }
+        
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .reprint-unit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .reprint-unit-item {
+            background: rgba(79, 172, 254, 0.1);
+            border: 2px solid rgba(79, 172, 254, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reprint-unit-item:hover {
+            background: rgba(79, 172, 254, 0.2);
+            border-color: #4facfe;
+        }
+        
+        .reprint-unit-item.selected {
+            background: rgba(79, 172, 254, 0.3);
+            border-color: #4facfe;
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+        }
+        
+        .reprint-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #4facfe;
+        }
+        
+        .reprint-unit-details {
+            flex: 1;
+        }
+        
+        .reprint-unit-number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #4facfe;
+            margin-bottom: 0.3rem;
+        }
+        
+        .reprint-unit-specs {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .reprint-spec-item {
+            display: flex;
+            gap: 0.3rem;
+        }
+        
+        .reprint-spec-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .reprint-spec-value {
+            color: #fff;
+        }
+        
+        .reprint-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-reprint-confirm {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reprint-confirm:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-reprint-confirm:disabled {
+            background: rgba(16, 185, 129, 0.3);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .btn-reprint-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reprint-cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
 
         .alert {
             padding: 1rem 1.5rem;
@@ -506,6 +681,9 @@
             const [selectedBatch, setSelectedBatch] = useState(null);
             const [currentUnit, setCurrentUnit] = useState(null);
             const [specs, setSpecs] = useState({});
+            
+            const [reprintBatch, setReprintBatch] = useState(null);
+            const [selectedUnitsForReprint, setSelectedUnitsForReprint] = useState([]);
             
             const [deviceName, setDeviceName] = useState('');
             const [vendor, setVendor] = useState('');
@@ -823,11 +1001,9 @@
                 }
                 
                 try {
-                    const sku = generateSKU(selectedBatch.category);
-                    
                     const updatedUnits = selectedBatch.units.map(u =>
                         u.unitNumber === currentUnit.unitNumber
-                            ? { ...u, completed: true, specs: { ...specs, sku }, processedBy: employeeName, processedAt: new Date().toISOString() }
+                            ? { ...u, completed: true, specs: specs, processedBy: employeeName, processedAt: new Date().toISOString() }
                             : u
                     );
                     
@@ -852,7 +1028,6 @@
             };
             
             const printLabel = (category, specs) => {
-                const template = LABEL_TEMPLATES.find(t => t.id === labelTemplate) || LABEL_TEMPLATES[0];
                 const brand = specs.brand || '';
                 const model = specs.model || '';
                 const productName = brand && model ? `${brand} ${model}` : (brand || model || category);
@@ -890,47 +1065,53 @@
                             body {
                                 font-family: 'Arial', sans-serif;
                                 display: flex;
-                                flex-direction: column;
+                                justify-content: center;
                                 align-items: center;
-                                padding: 20px;
+                                padding: 10px;
                                 background: #f5f5f5;
+                            }
+                            .label-sheet {
+                                display: flex;
+                                gap: 0.25in;
+                                width: 4in;
+                                height: 2in;
+                                background: white;
                             }
                             .label {
                                 background: white;
-                                border: 3px solid #000;
-                                padding: 10px;
+                                border: 2px solid #000;
+                                padding: 6px;
                                 text-align: center;
-                                width: ` + template.width + `;
-                                height: ` + template.height + `;
-                                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                                width: 1.875in;
+                                height: 2in;
                                 display: flex;
                                 flex-direction: column;
                                 overflow: hidden;
                             }
                             .company-name {
-                                font-size: 13px;
+                                font-size: 9px;
                                 font-weight: bold;
-                                margin-bottom: 5px;
-                                padding-bottom: 4px;
-                                border-bottom: 3px solid #000;
+                                margin-bottom: 2px;
+                                padding-bottom: 2px;
+                                border-bottom: 2px solid #000;
                                 color: #000;
                             }
                             .product-name {
-                                font-size: 11px;
+                                font-size: 8px;
                                 font-weight: bold;
-                                margin-bottom: 2px;
+                                margin-bottom: 1px;
                                 color: #000;
-                                line-height: 1.2;
+                                line-height: 1.1;
                             }
                             .product-type {
-                                font-size: 9px;
+                                font-size: 7px;
                                 font-weight: bold;
                                 color: #000;
-                                margin-bottom: 3px;
+                                margin-bottom: 2px;
                             }
                             .label-content {
                                 display: flex;
-                                gap: 8px;
+                                gap: 4px;
                                 align-items: flex-start;
                                 justify-content: space-between;
                                 flex: 1;
@@ -940,18 +1121,18 @@
                                 text-align: left;
                                 min-width: 0;
                             }
-                            #barcode {
+                            .barcode-container {
                                 flex-shrink: 0;
-                                width: 110px;
+                                width: 60px;
                                 height: auto;
                             }
                             .info-row {
                                 display: flex;
                                 justify-content: space-between;
-                                padding: 2px 0;
-                                border-bottom: 2px solid #000;
-                                font-size: 8px;
-                                line-height: 1.3;
+                                padding: 1px 0;
+                                border-bottom: 1px solid #000;
+                                font-size: 6px;
+                                line-height: 1.2;
                             }
                             .info-label {
                                 font-weight: bold;
@@ -965,51 +1146,51 @@
                                 white-space: nowrap;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
+                                font-size: 6px;
                             }
                             .sku {
-                                font-size: 10px;
+                                font-size: 7px;
                                 font-weight: bold;
                                 font-family: monospace;
-                                margin: 3px 0;
-                                padding: 3px;
+                                margin: 2px 0;
+                                padding: 2px;
                                 background: #f0f0f0;
-                                border: 2px solid #000;
-                                border-radius: 3px;
+                                border: 1px solid #000;
+                                border-radius: 2px;
                                 color: #000;
                             }
                             .grade-badge {
                                 display: inline-block;
-                                padding: 2px 8px;
+                                padding: 1px 4px;
                                 background: #4facfe;
                                 color: white;
-                                border-radius: 8px;
+                                border-radius: 4px;
                                 font-weight: bold;
-                                font-size: 8px;
-                                margin: 3px 0;
+                                font-size: 6px;
+                                margin: 1px 0;
                             }
-                            .print-button {
-                                margin-top: 20px;
-                                padding: 12px 30px;
-                                font-size: 16px;
-                                font-weight: bold;
-                                background: #4facfe;
-                                color: white;
-                                border: none;
-                                border-radius: 8px;
-                                cursor: pointer;
-                                box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
-                            }
-                            .print-button:hover { background: #3d96e8; }
                             @media print {
-                                @page { size: ` + template.width + ` ` + template.height + `; margin: 0; }
-                                body { background: white; padding: 0; margin: 0; }
-                                .label { 
-                                    border: 3px solid #000; 
-                                    box-shadow: none; 
-                                    width: ` + template.width + `; 
-                                    height: ` + template.height + `; 
+                                @page { 
+                                    size: 4in 2in landscape; 
                                     margin: 0; 
-                                    page-break-after: always;
+                                }
+                                body { 
+                                    background: white; 
+                                    padding: 0; 
+                                    margin: 0; 
+                                }
+                                .label-sheet {
+                                    width: 4in;
+                                    height: 2in;
+                                    display: flex;
+                                    flex-direction: row;
+                                    gap: 0.25in;
+                                }
+                                .label { 
+                                    border: 2px solid #000; 
+                                    width: 1.875in;
+                                    height: 2in;
+                                    page-break-inside: avoid;
                                     -webkit-print-color-adjust: exact;
                                     print-color-adjust: exact;
                                 }
@@ -1027,27 +1208,61 @@
                         </style>
                     </head>
                     <body>
-                        <div class="label">
-                            <div class="company-name">STUDENT TECH SHOP</div>
-                            <div class="label-content">
-                                <div class="label-left">
-                                    <div class="product-name">${productName}</div>
-                                    <div class="product-type">${productType}</div>
-                                    ${sku ? '<div class="sku">' + sku + '</div>' : ''}
-                                    ${grade ? '<div class="grade-badge">' + grade + '</div>' : ''}
-                                    <div style="margin-top: 3px; font-size: 7px;">${infoRowsHTML}</div>
+                        <div class="label-sheet">
+                            <!-- Label 1 (Left) -->
+                            <div class="label">
+                                <div class="company-name">STUDENT TECH SHOP</div>
+                                <div class="label-content">
+                                    <div class="label-left">
+                                        <div class="product-name">${productName}</div>
+                                        <div class="product-type">${productType}</div>
+                                        ${sku ? '<div class="sku">' + sku + '</div>' : ''}
+                                        ${grade ? '<div class="grade-badge">' + grade + '</div>' : ''}
+                                        <div style="margin-top: 2px; font-size: 6px;">${infoRowsHTML}</div>
+                                    </div>
+                                    <div class="barcode-container">
+                                        <svg id="barcode1"></svg>
+                                    </div>
                                 </div>
-                                <svg id="barcode"></svg>
+                            </div>
+                            
+                            <!-- Label 2 (Right) - Identical Copy -->
+                            <div class="label">
+                                <div class="company-name">STUDENT TECH SHOP</div>
+                                <div class="label-content">
+                                    <div class="label-left">
+                                        <div class="product-name">${productName}</div>
+                                        <div class="product-type">${productType}</div>
+                                        ${sku ? '<div class="sku">' + sku + '</div>' : ''}
+                                        ${grade ? '<div class="grade-badge">' + grade + '</div>' : ''}
+                                        <div style="margin-top: 2px; font-size: 6px;">${infoRowsHTML}</div>
+                                    </div>
+                                    <div class="barcode-container">
+                                        <svg id="barcode2"></svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <script>
-                            JsBarcode("#barcode", "${sku || 'NO-SKU'}", {
+                            // Generate barcodes for both labels
+                            JsBarcode("#barcode1", "${sku || 'NO-SKU'}", {
                                 format: "CODE128",
-                                width: 1.5,
-                                height: 55,
+                                width: 0.8,
+                                height: 30,
                                 displayValue: true,
-                                fontSize: 10,
-                                margin: 2,
+                                fontSize: 7,
+                                margin: 1,
+                                background: "#ffffff",
+                                lineColor: "#000000"
+                            });
+                            
+                            JsBarcode("#barcode2", "${sku || 'NO-SKU'}", {
+                                format: "CODE128",
+                                width: 0.8,
+                                height: 30,
+                                displayValue: true,
+                                fontSize: 7,
+                                margin: 1,
                                 background: "#ffffff",
                                 lineColor: "#000000"
                             });
@@ -1059,11 +1274,11 @@
                                 }, 500);
                             };
                             
-                            // Auto-close after printing
+                            // Auto-close after 15 seconds to allow multiple copies to print
                             window.onafterprint = function() {
                                 setTimeout(function() {
                                     window.close();
-                                }, 1000);
+                                }, 15000);
                             };
                         <\/script>
                     </body>
@@ -1076,6 +1291,84 @@
             const handleTemplateChange = (templateId) => {
                 setLabelTemplate(templateId);
                 localStorage.setItem('labelTemplate', templateId);
+            };
+            
+            const handleDeleteBatch = async (batch) => {
+                const confirmDelete = window.confirm(
+                    `Are you sure you want to delete this batch?\n\n` +
+                    `Device: ${batch.deviceName || batch.category}\n` +
+                    `Vendor: ${batch.vendor}\n` +
+                    `Quantity: ${batch.quantity}\n` +
+                    `Completed: ${getCompletedCount(batch)}/${batch.quantity}\n\n` +
+                    `This action cannot be undone.`
+                );
+                
+                if (!confirmDelete) return;
+                
+                try {
+                    await db.collection('studentTechBatches').doc(batch.id).delete();
+                    setSuccessMessage(`✅ Batch deleted successfully!`);
+                    setTimeout(() => setSuccessMessage(''), 3000);
+                    loadBatches();
+                } catch (error) {
+                    setErrorMessage(`❌ Delete failed: ${error.message}`);
+                    setTimeout(() => setErrorMessage(''), 5000);
+                }
+            };
+            
+            const handleOpenReprintModal = (batch) => {
+                if (!batch.units) {
+                    setErrorMessage('⚠️ No units found in this batch');
+                    setTimeout(() => setErrorMessage(''), 3000);
+                    return;
+                }
+                
+                const completedUnits = batch.units.filter(u => u.completed);
+                
+                if (completedUnits.length === 0) {
+                    setErrorMessage('⚠️ No completed units to reprint');
+                    setTimeout(() => setErrorMessage(''), 3000);
+                    return;
+                }
+                
+                setReprintBatch(batch);
+                setSelectedUnitsForReprint([]);
+            };
+            
+            const handleToggleUnitForReprint = (unitNumber) => {
+                setSelectedUnitsForReprint(prev => {
+                    if (prev.includes(unitNumber)) {
+                        return prev.filter(u => u !== unitNumber);
+                    } else {
+                        return [...prev, unitNumber];
+                    }
+                });
+            };
+            
+            const handleReprintSelected = () => {
+                if (selectedUnitsForReprint.length === 0) {
+                    setErrorMessage('⚠️ Please select at least one unit to reprint');
+                    setTimeout(() => setErrorMessage(''), 3000);
+                    return;
+                }
+                
+                const unitsToReprint = reprintBatch.units.filter(u => 
+                    selectedUnitsForReprint.includes(u.unitNumber) && u.completed
+                );
+                
+                // Print each selected unit's label with a delay
+                unitsToReprint.forEach((unit, index) => {
+                    setTimeout(() => {
+                        printLabel(reprintBatch.category, unit.specs);
+                    }, index * 1000);
+                });
+                
+                setSuccessMessage(`✅ Printing ${unitsToReprint.length} label(s)...`);
+                setTimeout(() => setSuccessMessage(''), 3000);
+                
+                // Close modal
+                setReprintBatch(null);
+                setSelectedUnitsForReprint([]);
             };
             
             const getCompletedCount = (batch) => {
@@ -1329,13 +1622,32 @@
                                                             </span>
                                                         </td>
                                                         <td>
-                                                            <button
-                                                                className="btn-start"
-                                                                onClick={() => startProcessing(batch)}
-                                                                disabled={isComplete}
-                                                            >
-                                                                {isComplete ? 'Completed ✓' : 'Process →'}
-                                                            </button>
+                                                            <div className="action-buttons">
+                                                                <button
+                                                                    className="btn-start"
+                                                                    onClick={() => startProcessing(batch)}
+                                                                    disabled={isComplete}
+                                                                >
+                                                                    {isComplete ? 'Completed ✓' : 'Process →'}
+                                                                </button>
+                                                                
+                                                                <button
+                                                                    className="btn-reprint"
+                                                                    onClick={() => handleOpenReprintModal(batch)}
+                                                                    disabled={completedCount === 0}
+                                                                    title={completedCount === 0 ? 'No completed units to reprint' : `Reprint label(s)`}
+                                                                >
+                                                                    🖨️ Reprint Label
+                                                                </button>
+                                                                
+                                                                <button
+                                                                    className="btn-delete"
+                                                                    onClick={() => handleDeleteBatch(batch)}
+                                                                    title="Delete this batch"
+                                                                >
+                                                                    🗑️ Delete
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 );
@@ -1403,6 +1715,105 @@
                                 <button className="btn btn-success" style={{marginTop: '2rem', width: '100%'}} onClick={handleProcessUnit}>
                                     Complete Unit & Print Label
                                 </button>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {reprintBatch && (
+                        <div className="modal-overlay" onClick={() => setReprintBatch(null)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">🖨️ Reprint Labels</h2>
+                                    <button className="modal-close" onClick={() => setReprintBatch(null)}>×</button>
+                                </div>
+                                
+                                <div className="unit-info">
+                                    <div style={{fontSize: '1.2rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem'}}>
+                                        {reprintBatch.deviceName || reprintBatch.category}
+                                    </div>
+                                    <div style={{color: 'rgba(255,255,255,0.7)'}}>
+                                        {reprintBatch.vendor} • {reprintBatch.category}
+                                    </div>
+                                </div>
+                                
+                                <div style={{marginBottom: '1rem', color: 'rgba(255,255,255,0.8)'}}>
+                                    Select which unit(s) to reprint:
+                                </div>
+                                
+                                <div className="reprint-unit-list">
+                                    {reprintBatch.units
+                                        .filter(unit => unit.completed)
+                                        .map(unit => {
+                                            const isSelected = selectedUnitsForReprint.includes(unit.unitNumber);
+                                            return (
+                                                <div
+                                                    key={unit.unitNumber}
+                                                    className={`reprint-unit-item ${isSelected ? 'selected' : ''}`}
+                                                    onClick={() => handleToggleUnitForReprint(unit.unitNumber)}
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        className="reprint-checkbox"
+                                                        checked={isSelected}
+                                                        onChange={() => handleToggleUnitForReprint(unit.unitNumber)}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                    
+                                                    <div className="reprint-unit-details">
+                                                        <div className="reprint-unit-number">
+                                                            Unit #{unit.unitNumber}
+                                                        </div>
+                                                        <div className="reprint-unit-specs">
+                                                            {unit.specs.sku && (
+                                                                <div className="reprint-spec-item">
+                                                                    <span className="reprint-spec-label">SKU:</span>
+                                                                    <span className="reprint-spec-value">{unit.specs.sku}</span>
+                                                                </div>
+                                                            )}
+                                                            {unit.specs.brand && (
+                                                                <div className="reprint-spec-item">
+                                                                    <span className="reprint-spec-label">Brand:</span>
+                                                                    <span className="reprint-spec-value">{unit.specs.brand}</span>
+                                                                </div>
+                                                            )}
+                                                            {unit.specs.model && (
+                                                                <div className="reprint-spec-item">
+                                                                    <span className="reprint-spec-label">Model:</span>
+                                                                    <span className="reprint-spec-value">{unit.specs.model}</span>
+                                                                </div>
+                                                            )}
+                                                            {unit.specs.storage && (
+                                                                <div className="reprint-spec-item">
+                                                                    <span className="reprint-spec-label">Storage:</span>
+                                                                    <span className="reprint-spec-value">{unit.specs.storage}</span>
+                                                                </div>
+                                                            )}
+                                                            {unit.specs.ram && (
+                                                                <div className="reprint-spec-item">
+                                                                    <span className="reprint-spec-label">RAM:</span>
+                                                                    <span className="reprint-spec-value">{unit.specs.ram}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    }
+                                </div>
+                                
+                                <div className="reprint-actions">
+                                    <button className="btn-reprint-cancel" onClick={() => setReprintBatch(null)}>
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        className="btn-reprint-confirm" 
+                                        onClick={handleReprintSelected}
+                                        disabled={selectedUnitsForReprint.length === 0}
+                                    >
+                                        Print {selectedUnitsForReprint.length > 0 ? `${selectedUnitsForReprint.length} Label(s)` : 'Selected'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
