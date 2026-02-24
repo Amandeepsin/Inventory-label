@@ -432,6 +432,251 @@
             font-size: 0.95rem;
         }
 
+        /* ── Completed Sidebar ── */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .completed-sidebar {
+            position: fixed;
+            top: 0; right: 0;
+            width: 420px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a1f3a 0%, #212847 100%);
+            border-left: 2px solid rgba(16,185,129,0.35);
+            box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+            z-index: 1600;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+        }
+        .completed-sidebar.open { transform: translateX(0); }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.4rem 1.5rem;
+            border-bottom: 1px solid rgba(16,185,129,0.25);
+            background: rgba(16,185,129,0.08);
+            flex-shrink: 0;
+        }
+        .sidebar-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .sidebar-badge {
+            background: rgba(16,185,129,0.25);
+            color: #10b981;
+            border-radius: 20px;
+            padding: 0.15rem 0.65rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .sidebar-close {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .sidebar-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .sidebar-search {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            flex-shrink: 0;
+        }
+        .sidebar-search input {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            border: 1.5px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .sidebar-search input:focus { border-color: #10b981; }
+        .sidebar-search input::placeholder { color: rgba(255,255,255,0.35); }
+        .sidebar-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+        .sidebar-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-list::-webkit-scrollbar-thumb { background: rgba(16,185,129,0.3); border-radius: 4px; }
+        .completed-card {
+            background: rgba(16,185,129,0.06);
+            border: 1.5px solid rgba(16,185,129,0.2);
+            border-radius: 14px;
+            padding: 1rem 1.1rem;
+            transition: all 0.2s ease;
+        }
+        .completed-card:hover {
+            background: rgba(16,185,129,0.12);
+            border-color: rgba(16,185,129,0.4);
+            transform: translateY(-1px);
+        }
+        .completed-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .completed-card-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.3;
+        }
+        .completed-card-badge {
+            background: rgba(16,185,129,0.2);
+            color: #10b981;
+            border-radius: 6px;
+            padding: 0.15rem 0.5rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            white-space: nowrap;
+            margin-left: 0.5rem;
+            flex-shrink: 0;
+        }
+        .completed-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem 0.75rem;
+            margin-bottom: 0.65rem;
+        }
+        .completed-card-chip {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .completed-card-chip span { color: rgba(255,255,255,0.8); }
+        .completed-card-dates {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.65rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        .completed-date-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .completed-date-label {
+            color: rgba(255,255,255,0.4);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-size: 0.68rem;
+        }
+        .completed-date-value {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.78rem;
+        }
+        .completed-date-value.green { color: #10b981; font-weight: 600; }
+        .completed-card-actions { display: flex; gap: 0.5rem; }
+        .card-btn-reprint {
+            flex: 1;
+            background: rgba(16,185,129,0.12);
+            border: 1.5px solid rgba(16,185,129,0.35);
+            color: #10b981;
+            border-radius: 8px;
+            padding: 0.45rem 0.75rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .card-btn-reprint:hover { background: rgba(16,185,129,0.25); border-color: #10b981; }
+        .card-btn-delete {
+            background: rgba(239,68,68,0.08);
+            border: 1.5px solid rgba(239,68,68,0.25);
+            color: #ef4444;
+            border-radius: 8px;
+            padding: 0.45rem 0.75rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .card-btn-delete:hover { background: rgba(239,68,68,0.2); border-color: #ef4444; }
+        .sidebar-empty { text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.35); }
+        .sidebar-empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+        .completed-toggle-btn {
+            background: rgba(16,185,129,0.12);
+            border: 1.5px solid rgba(16,185,129,0.4);
+            color: #10b981;
+            border-radius: 10px;
+            padding: 0.55rem 1rem;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .completed-toggle-btn:hover {
+            background: rgba(16,185,129,0.22);
+            border-color: #10b981;
+            transform: translateY(-1px);
+        }
+        .queue-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .queue-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #4facfe;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .queue-badge {
+            background: rgba(79,172,254,0.2);
+            color: #4facfe;
+            border-radius: 20px;
+            padding: 0.15rem 0.65rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -695,6 +940,10 @@
             
             const [reprintBatch, setReprintBatch] = useState(null);
             const [selectedUnitsForReprint, setSelectedUnitsForReprint] = useState([]);
+            const [sidebarOpen, setSidebarOpen] = useState(false);
+            const [sidebarSearch, setSidebarSearch] = useState('');
+            const [compSearch, setCompSearch] = useState('');
+            const [compCategory, setCompCategory] = useState('all');
             
             const [deviceName, setDeviceName] = useState('');
             const [vendor, setVendor] = useState('');
@@ -859,108 +1108,244 @@
                 }
             };
             
-            const getSpecFields = (category) => {
+            // ── Model → Color mapping ──────────────────────────────────────
+            const IPHONE_MODEL_COLORS = {
+                'iPhone 7':              ['Black', 'Silver', 'Gold', 'Rose Gold', 'Jet Black', 'Other'],
+                'iPhone 7 Plus':         ['Black', 'Silver', 'Gold', 'Rose Gold', 'Jet Black', 'Other'],
+                'iPhone 8':              ['Space Grey', 'Silver', 'Gold', 'Product Red', 'Other'],
+                'iPhone 8 Plus':         ['Space Grey', 'Silver', 'Gold', 'Product Red', 'Other'],
+                'iPhone X':              ['Space Grey', 'Silver', 'Other'],
+                'iPhone XR':             ['Black', 'White', 'Blue', 'Yellow', 'Coral', 'Product Red', 'Other'],
+                'iPhone XS':             ['Space Grey', 'Silver', 'Gold', 'Other'],
+                'iPhone XS Max':         ['Space Grey', 'Silver', 'Gold', 'Other'],
+                'iPhone 11':             ['Black', 'White', 'Green', 'Yellow', 'Purple', 'Product Red', 'Other'],
+                'iPhone 11 Pro':         ['Space Grey', 'Silver', 'Gold', 'Midnight Green', 'Other'],
+                'iPhone 11 Pro Max':     ['Space Grey', 'Silver', 'Gold', 'Midnight Green', 'Other'],
+                'iPhone 12':             ['Black', 'White', 'Blue', 'Green', 'Purple', 'Product Red', 'Other'],
+                'iPhone 12 Mini':        ['Black', 'White', 'Blue', 'Green', 'Purple', 'Product Red', 'Other'],
+                'iPhone 12 Pro':         ['Graphite', 'Silver', 'Gold', 'Pacific Blue', 'Other'],
+                'iPhone 12 Pro Max':     ['Graphite', 'Silver', 'Gold', 'Pacific Blue', 'Other'],
+                'iPhone 13':             ['Midnight', 'Starlight', 'Blue', 'Pink', 'Green', 'Product Red', 'Other'],
+                'iPhone 13 Mini':        ['Midnight', 'Starlight', 'Blue', 'Pink', 'Green', 'Product Red', 'Other'],
+                'iPhone 13 Pro':         ['Graphite', 'Silver', 'Gold', 'Sierra Blue', 'Alpine Green', 'Other'],
+                'iPhone 13 Pro Max':     ['Graphite', 'Silver', 'Gold', 'Sierra Blue', 'Alpine Green', 'Other'],
+                'iPhone 14':             ['Midnight', 'Starlight', 'Blue', 'Purple', 'Yellow', 'Product Red', 'Other'],
+                'iPhone 14 Plus':        ['Midnight', 'Starlight', 'Blue', 'Purple', 'Yellow', 'Product Red', 'Other'],
+                'iPhone 14 Pro':         ['Space Black', 'Silver', 'Gold', 'Deep Purple', 'Other'],
+                'iPhone 14 Pro Max':     ['Space Black', 'Silver', 'Gold', 'Deep Purple', 'Other'],
+                'iPhone 15':             ['Black', 'Blue', 'Green', 'Yellow', 'Pink', 'Other'],
+                'iPhone 15 Plus':        ['Black', 'Blue', 'Green', 'Yellow', 'Pink', 'Other'],
+                'iPhone 15 Pro':         ['Black Titanium', 'White Titanium', 'Blue Titanium', 'Natural Titanium', 'Other'],
+                'iPhone 15 Pro Max':     ['Black Titanium', 'White Titanium', 'Blue Titanium', 'Natural Titanium', 'Other'],
+                'iPhone 16':             ['Black', 'White', 'Pink', 'Teal', 'Ultramarine', 'Other'],
+                'iPhone 16 Plus':        ['Black', 'White', 'Pink', 'Teal', 'Ultramarine', 'Other'],
+                'iPhone 16 Pro':         ['Black Titanium', 'White Titanium', 'Natural Titanium', 'Desert Titanium', 'Other'],
+                'iPhone 16 Pro Max':     ['Black Titanium', 'White Titanium', 'Natural Titanium', 'Desert Titanium', 'Other'],
+            };
+
+            const IPAD_MODEL_COLORS = {
+                'iPad (6th gen)':             ['Space Grey', 'Silver', 'Gold', 'Other'],
+                'iPad (7th gen)':             ['Space Grey', 'Silver', 'Gold', 'Other'],
+                'iPad (8th gen)':             ['Space Grey', 'Silver', 'Gold', 'Other'],
+                'iPad (9th gen)':             ['Space Grey', 'Silver', 'Other'],
+                'iPad (10th gen)':            ['Blue', 'Pink', 'Silver', 'Yellow', 'Other'],
+                'iPad Mini 4':                ['Space Grey', 'Silver', 'Gold', 'Other'],
+                'iPad Mini 5':                ['Space Grey', 'Silver', 'Gold', 'Other'],
+                'iPad Mini 6':                ['Space Grey', 'Pink', 'Purple', 'Starlight', 'Other'],
+                'iPad Mini 7':                ['Blue', 'Purple', 'Starlight', 'Space Grey', 'Other'],
+                'iPad Air 3':                 ['Space Grey', 'Silver', 'Gold', 'Rose Gold', 'Green', 'Other'],
+                'iPad Air 4':                 ['Space Grey', 'Silver', 'Rose Gold', 'Green', 'Sky Blue', 'Other'],
+                'iPad Air 5':                 ['Space Grey', 'Starlight', 'Pink', 'Purple', 'Blue', 'Other'],
+                'iPad Air M2':                ['Blue', 'Purple', 'Starlight', 'Space Grey', 'Other'],
+                'iPad Air M3':                ['Blue', 'Purple', 'Starlight', 'Space Grey', 'Other'],
+                'iPad Pro 11" (1st gen)':     ['Space Grey', 'Silver', 'Other'],
+                'iPad Pro 11" (2nd gen)':     ['Space Grey', 'Silver', 'Other'],
+                'iPad Pro 11" (3rd gen)':     ['Space Grey', 'Silver', 'Other'],
+                'iPad Pro 11" (4th gen)':     ['Space Grey', 'Silver', 'Other'],
+                'iPad Pro 13" M4':            ['Space Black', 'Silver', 'Other'],
+                'iPad Pro 12.9" (3rd gen)':   ['Space Grey', 'Silver', 'Other'],
+                'iPad Pro 12.9" (4th gen)':   ['Space Grey', 'Silver', 'Other'],
+                'iPad Pro 12.9" (5th gen)':   ['Space Grey', 'Silver', 'Other'],
+                'iPad Pro 12.9" (6th gen)':   ['Space Grey', 'Silver', 'Other'],
+            };
+
+            const MACBOOK_MODEL_COLORS = {
+                'MacBook Air (M1)':              ['Space Grey', 'Silver', 'Gold', 'Other'],
+                'MacBook Air (M2)':              ['Midnight', 'Starlight', 'Space Grey', 'Silver', 'Other'],
+                'MacBook Air (M3)':              ['Midnight', 'Starlight', 'Space Grey', 'Sky Blue', 'Other'],
+                'MacBook Air (M4)':              ['Sky Blue', 'Starlight', 'Midnight', 'Rose', 'Other'],
+                'MacBook Pro 13" (M1)':          ['Space Grey', 'Silver', 'Other'],
+                'MacBook Pro 13" (M2)':          ['Space Grey', 'Silver', 'Other'],
+                'MacBook Pro 14" (M1 Pro)':      ['Space Grey', 'Silver', 'Other'],
+                'MacBook Pro 14" (M1 Max)':      ['Space Grey', 'Silver', 'Other'],
+                'MacBook Pro 14" (M2 Pro)':      ['Space Grey', 'Silver', 'Other'],
+                'MacBook Pro 14" (M2 Max)':      ['Space Grey', 'Silver', 'Other'],
+                'MacBook Pro 14" (M3)':          ['Space Black', 'Silver', 'Other'],
+                'MacBook Pro 14" (M3 Pro)':      ['Space Black', 'Silver', 'Other'],
+                'MacBook Pro 14" (M3 Max)':      ['Space Black', 'Silver', 'Other'],
+                'MacBook Pro 14" (M4)':          ['Space Black', 'Silver', 'Other'],
+                'MacBook Pro 16" (M1 Pro)':      ['Space Grey', 'Silver', 'Other'],
+                'MacBook Pro 16" (M1 Max)':      ['Space Grey', 'Silver', 'Other'],
+                'MacBook Pro 16" (M2 Pro)':      ['Space Grey', 'Silver', 'Other'],
+                'MacBook Pro 16" (M2 Max)':      ['Space Grey', 'Silver', 'Other'],
+                'MacBook Pro 16" (M3 Pro)':      ['Space Black', 'Silver', 'Other'],
+                'MacBook Pro 16" (M3 Max)':      ['Space Black', 'Silver', 'Other'],
+                'MacBook Pro 16" (M4 Pro)':      ['Space Black', 'Silver', 'Other'],
+                'MacBook Pro 16" (M4 Max)':      ['Space Black', 'Silver', 'Other'],
+            };
+
+            const getSpecFields = (category, currentSpecs) => {
                 let fields = [];
-                
+                const selectedModel = (currentSpecs && currentSpecs.model) || '';
+
+                const RAM_OPTIONS = ['2GB', '4GB', '6GB', '8GB', '12GB', '16GB', '24GB', '32GB', '64GB', 'Other'];
+                const STORAGE_OPTIONS_LAPTOP = ['64GB', '128GB', '256GB', '512GB', '1TB', '2TB', 'Other'];
+                const STORAGE_OPTIONS_PHONE = ['16GB', '32GB', '64GB', '128GB', '256GB', '512GB', '1TB', 'Other'];
+                const STORAGE_OPTIONS_MAC = ['128GB', '256GB', '512GB', '1TB', '2TB', 'Other'];
+                const SCREEN_SIZES_LAPTOP = ['11"', '11.6"', '12"', '13"', '13.3"', '13.6"', '14"', '15"', '15.6"', '16"', '17"', 'Other'];
+                const SCREEN_SIZES_MAC = ['13"', '13.6"', '14"', '15"', '16"', 'Other'];
+                const SCREEN_SIZES_IPAD = ['7.9"', '8.3"', '9.7"', '10.2"', '10.5"', '10.9"', '11"', '12.9"', '13"', 'Other'];
+                const IPHONE_MODELS = ['iPhone 7', 'iPhone 7 Plus', 'iPhone 8', 'iPhone 8 Plus', 'iPhone X', 'iPhone XR', 'iPhone XS', 'iPhone XS Max', 'iPhone 11', 'iPhone 11 Pro', 'iPhone 11 Pro Max', 'iPhone 12', 'iPhone 12 Mini', 'iPhone 12 Pro', 'iPhone 12 Pro Max', 'iPhone 13', 'iPhone 13 Mini', 'iPhone 13 Pro', 'iPhone 13 Pro Max', 'iPhone 14', 'iPhone 14 Plus', 'iPhone 14 Pro', 'iPhone 14 Pro Max', 'iPhone 15', 'iPhone 15 Plus', 'iPhone 15 Pro', 'iPhone 15 Pro Max', 'iPhone 16', 'iPhone 16 Plus', 'iPhone 16 Pro', 'iPhone 16 Pro Max', 'Other'];
+                const IPAD_MODELS = ['iPad (6th gen)', 'iPad (7th gen)', 'iPad (8th gen)', 'iPad (9th gen)', 'iPad (10th gen)', 'iPad Mini 4', 'iPad Mini 5', 'iPad Mini 6', 'iPad Mini 7', 'iPad Air 3', 'iPad Air 4', 'iPad Air 5', 'iPad Air M2', 'iPad Air M3', 'iPad Pro 11" (1st gen)', 'iPad Pro 11" (2nd gen)', 'iPad Pro 11" (3rd gen)', 'iPad Pro 11" (4th gen)', 'iPad Pro 13" M4', 'iPad Pro 12.9" (3rd gen)', 'iPad Pro 12.9" (4th gen)', 'iPad Pro 12.9" (5th gen)', 'iPad Pro 12.9" (6th gen)', 'Other'];
+                const IWATCH_MODELS = ['Apple Watch Series 3', 'Apple Watch Series 4', 'Apple Watch Series 5', 'Apple Watch Series 6', 'Apple Watch Series 7', 'Apple Watch Series 8', 'Apple Watch Series 9', 'Apple Watch Series 10', 'Apple Watch SE (1st gen)', 'Apple Watch SE (2nd gen)', 'Apple Watch Ultra', 'Apple Watch Ultra 2', 'Other'];
+                const IWATCH_DIAL_SIZES = ['38mm', '40mm', '41mm', '42mm', '44mm', '45mm', '46mm', '49mm', 'Other'];
+                const MACBOOK_MODELS = ['MacBook Air (M1)', 'MacBook Air (M2)', 'MacBook Air (M3)', 'MacBook Air (M4)', 'MacBook Pro 13" (M1)', 'MacBook Pro 13" (M2)', 'MacBook Pro 14" (M1 Pro)', 'MacBook Pro 14" (M1 Max)', 'MacBook Pro 14" (M2 Pro)', 'MacBook Pro 14" (M2 Max)', 'MacBook Pro 14" (M3)', 'MacBook Pro 14" (M3 Pro)', 'MacBook Pro 14" (M3 Max)', 'MacBook Pro 14" (M4)', 'MacBook Pro 16" (M1 Pro)', 'MacBook Pro 16" (M1 Max)', 'MacBook Pro 16" (M2 Pro)', 'MacBook Pro 16" (M2 Max)', 'MacBook Pro 16" (M3 Pro)', 'MacBook Pro 16" (M3 Max)', 'MacBook Pro 16" (M4 Pro)', 'MacBook Pro 16" (M4 Max)', 'Other'];
+                const MACBOOK_CHIPS = ['Apple M1', 'Apple M1 Pro', 'Apple M1 Max', 'Apple M2', 'Apple M2 Pro', 'Apple M2 Max', 'Apple M3', 'Apple M3 Pro', 'Apple M3 Max', 'Apple M4', 'Apple M4 Pro', 'Apple M4 Max', 'Other'];
+                const MACBOOK_YEARS = ['2019', '2020', '2021', '2022', '2023', '2024', '2025', 'Other'];
+                const AIRPODS_MODELS = ['AirPods (1st gen)', 'AirPods (2nd gen)', 'AirPods (3rd gen)', 'AirPods (4th gen)', 'AirPods Pro (1st gen)', 'AirPods Pro (2nd gen)', 'AirPods Max (Lightning)', 'AirPods Max (USB-C)', 'Other'];
+                const IWATCH_COLORS = ['Midnight', 'Starlight', 'Silver', 'Product Red', 'Black', 'White', 'Gold', 'Blue', 'Green', 'Pink', 'Yellow', 'Orange', 'Titanium', 'Natural Titanium', 'Black Titanium', 'Other'];
+                const ANDROID_COLORS = ['Black', 'White', 'Blue', 'Green', 'Red', 'Gold', 'Silver', 'Grey', 'Purple', 'Pink', 'Yellow', 'Orange', 'Other'];
+                const PROCESSORS_LAPTOP = ['Intel Core i3', 'Intel Core i5', 'Intel Core i7', 'Intel Core i9', 'Intel Core Ultra 5', 'Intel Core Ultra 7', 'Intel Core Ultra 9', 'Intel Celeron N4000', 'Intel Celeron N4100', 'Intel Celeron N4500', 'Intel Celeron N5100', 'Intel Pentium Silver', 'AMD Ryzen 3', 'AMD Ryzen 5', 'AMD Ryzen 7', 'AMD Ryzen 9', 'AMD A-Series', 'Qualcomm Snapdragon X', 'Other'];
+                const PROCESSORS_CHROMEBOOK = ['Intel Celeron N4000', 'Intel Celeron N4100', 'Intel Celeron N4500', 'Intel Celeron N5100', 'Intel Core i3', 'Intel Core i5', 'Intel Core i7', 'MediaTek Kompanio 500', 'MediaTek Kompanio 520', 'Qualcomm Snapdragon 7c', 'Qualcomm Snapdragon 7c Gen 2', 'AMD A4', 'AMD Ryzen 3', 'AMD Ryzen 5', 'Other'];
+
+                // Dynamic color options based on selected model
+                const iphoneColors = selectedModel && IPHONE_MODEL_COLORS[selectedModel]
+                    ? IPHONE_MODEL_COLORS[selectedModel]
+                    : ['Black', 'White', 'Silver', 'Gold', 'Space Grey', 'Other'];
+                const ipadColors = selectedModel && IPAD_MODEL_COLORS[selectedModel]
+                    ? IPAD_MODEL_COLORS[selectedModel]
+                    : ['Space Grey', 'Silver', 'Gold', 'Other'];
+                const macbookColors = selectedModel && MACBOOK_MODEL_COLORS[selectedModel]
+                    ? MACBOOK_MODEL_COLORS[selectedModel]
+                    : ['Space Grey', 'Silver', 'Other'];
+
                 switch(category) {
                     case 'Window Laptops':
                         fields = [
-                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'brand', label: 'Brand', type: 'select', options: ['Acer', 'Asus', 'Dell', 'HP', 'Lenovo', 'Microsoft', 'MSI', 'Samsung', 'Toshiba', 'Other'], required: true },
                             { name: 'model', label: 'Model', type: 'text', required: true },
-                            { name: 'processor', label: 'Processor', type: 'text', required: true },
-                            { name: 'ram', label: 'RAM', type: 'text', required: true },
-                            { name: 'storage', label: 'Storage', type: 'text', required: true },
+                            { name: 'processor', label: 'Processor', type: 'select', options: PROCESSORS_LAPTOP, required: true },
+                            { name: 'ram', label: 'RAM', type: 'select', options: RAM_OPTIONS, required: true },
+                            { name: 'storage', label: 'Storage', type: 'select', options: STORAGE_OPTIONS_LAPTOP, required: true },
+                            { name: 'screenSize', label: 'Screen Size', type: 'select', options: SCREEN_SIZES_LAPTOP, required: true },
                             { name: 'touchscreen', label: 'Touch Screen', type: 'select', options: ['No Touch', 'Touch'], required: true },
-                            { name: 'screenSize', label: 'Screen Size', type: 'text', required: true }
                         ];
                         break;
                     case 'iPhone':
                         fields = [
-                            { name: 'brand', label: 'Brand', type: 'text', required: true },
-                            { name: 'model', label: 'Model', type: 'text', required: true },
-                            { name: 'storage', label: 'Storage', type: 'text', required: true },
-                            { name: 'color', label: 'Color', type: 'text', required: true },
+                            { name: 'brand', label: 'Brand', type: 'select', options: ['Apple', 'Other'], required: true },
+                            { name: 'model', label: 'Model', type: 'select', options: IPHONE_MODELS, required: true },
+                            { name: 'storage', label: 'Storage', type: 'select', options: STORAGE_OPTIONS_PHONE, required: true },
+                            { name: 'color', label: 'Color', type: 'select', options: iphoneColors, required: true },
                             { name: 'imei', label: 'IMEI', type: 'text', required: true },
-                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                            { name: 'grade', label: 'Grade', type: 'select', options: GRADES, required: true },
                         ];
                         break;
                     case 'iPads':
                         fields = [
-                            { name: 'brand', label: 'Brand', type: 'text', required: true },
-                            { name: 'model', label: 'Model', type: 'text', required: true },
-                            { name: 'storage', label: 'Storage', type: 'text', required: true },
-                            { name: 'connectivity', label: 'Connectivity', type: 'select', options: ['Wifi Only', 'Cellular + Wifi'], required: true },
-                            { name: 'color', label: 'Color', type: 'text', required: true },
+                            { name: 'brand', label: 'Brand', type: 'select', options: ['Apple', 'Other'], required: true },
+                            { name: 'model', label: 'Model', type: 'select', options: IPAD_MODELS, required: true },
+                            { name: 'storage', label: 'Storage', type: 'select', options: STORAGE_OPTIONS_PHONE, required: true },
+                            { name: 'screenSize', label: 'Screen Size', type: 'select', options: SCREEN_SIZES_IPAD, required: true },
+                            { name: 'connectivity', label: 'Connectivity', type: 'select', options: ['Wi-Fi Only', 'Wi-Fi + Cellular', 'Other'], required: true },
+                            { name: 'color', label: 'Color', type: 'select', options: ipadColors, required: true },
                             { name: 'imei', label: 'IMEI', type: 'text', required: false },
-                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                            { name: 'grade', label: 'Grade', type: 'select', options: GRADES, required: true },
                         ];
                         break;
                     case 'iWatch':
                         fields = [
-                            { name: 'brand', label: 'Brand', type: 'text', required: true },
-                            { name: 'model', label: 'Model', type: 'text', required: true },
-                            { name: 'dialSize', label: 'Dial Size', type: 'text', required: true },
-                            { name: 'connectivity', label: 'Connectivity', type: 'select', options: ['GPS', 'Cellular + GPS'], required: true },
-                            { name: 'color', label: 'Color', type: 'text', required: true },
-                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                            { name: 'brand', label: 'Brand', type: 'select', options: ['Apple', 'Other'], required: true },
+                            { name: 'model', label: 'Model', type: 'select', options: IWATCH_MODELS, required: true },
+                            { name: 'dialSize', label: 'Case Size', type: 'select', options: IWATCH_DIAL_SIZES, required: true },
+                            { name: 'connectivity', label: 'Connectivity', type: 'select', options: ['GPS', 'GPS + Cellular', 'Other'], required: true },
+                            { name: 'color', label: 'Color', type: 'select', options: IWATCH_COLORS, required: true },
+                            { name: 'grade', label: 'Grade', type: 'select', options: GRADES, required: true },
                         ];
                         break;
                     case 'Macbooks':
                         fields = [
-                            { name: 'brand', label: 'Brand', type: 'text', required: true },
-                            { name: 'model', label: 'Model', type: 'text', required: true },
-                            { name: 'year', label: 'Year', type: 'text', required: true },
-                            { name: 'chip', label: 'Chip', type: 'text', required: true },
-                            { name: 'ram', label: 'RAM', type: 'text', required: true },
-                            { name: 'storage', label: 'Storage', type: 'text', required: true },
-                            { name: 'screenSize', label: 'Screen Size', type: 'text', required: true },
-                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                            { name: 'brand', label: 'Brand', type: 'select', options: ['Apple', 'Other'], required: true },
+                            { name: 'model', label: 'Model', type: 'select', options: MACBOOK_MODELS, required: true },
+                            { name: 'year', label: 'Year', type: 'select', options: MACBOOK_YEARS, required: true },
+                            { name: 'chip', label: 'Chip', type: 'select', options: MACBOOK_CHIPS, required: true },
+                            { name: 'ram', label: 'RAM', type: 'select', options: ['8GB', '16GB', '24GB', '32GB', '48GB', '64GB', '96GB', '128GB', 'Other'], required: true },
+                            { name: 'storage', label: 'Storage', type: 'select', options: STORAGE_OPTIONS_MAC, required: true },
+                            { name: 'screenSize', label: 'Screen Size', type: 'select', options: SCREEN_SIZES_MAC, required: true },
+                            { name: 'color', label: 'Color', type: 'select', options: macbookColors, required: true },
+                            { name: 'grade', label: 'Grade', type: 'select', options: GRADES, required: true },
                         ];
                         break;
                     case 'Apple Airpods':
                         fields = [
-                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'brand', label: 'Brand', type: 'select', options: ['Apple', 'Other'], required: true },
+                            { name: 'model', label: 'Model', type: 'select', options: AIRPODS_MODELS, required: true },
+                            { name: 'condition', label: 'Condition', type: 'select', options: ['New', 'Open Box', 'Refurbished', 'Other'], required: true },
+                            { name: 'grade', label: 'Grade', type: 'select', options: GRADES, required: true },
+                        ];
+                        break;
+                    case 'Android Phone':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'select', options: ['Samsung', 'Google', 'OnePlus', 'Motorola', 'Nokia', 'LG', 'Sony', 'Huawei', 'Xiaomi', 'Other'], required: true },
                             { name: 'model', label: 'Model', type: 'text', required: true },
-                            { name: 'condition', label: 'Condition', type: 'select', options: ['New', 'Open Box', 'Refurbished'], required: true },
-                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                            { name: 'ram', label: 'RAM', type: 'select', options: RAM_OPTIONS, required: true },
+                            { name: 'storage', label: 'Storage', type: 'select', options: STORAGE_OPTIONS_PHONE, required: true },
+                            { name: 'color', label: 'Color', type: 'select', options: ANDROID_COLORS, required: true },
+                            { name: 'imei', label: 'IMEI', type: 'text', required: false },
+                            { name: 'grade', label: 'Grade', type: 'select', options: GRADES, required: true },
                         ];
                         break;
                     case 'Android Tablets':
-                    case 'Android Phone':
                         fields = [
-                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'brand', label: 'Brand', type: 'select', options: ['Samsung', 'Google', 'Lenovo', 'Amazon', 'Microsoft', 'Huawei', 'OnePlus', 'Other'], required: true },
                             { name: 'model', label: 'Model', type: 'text', required: true },
-                            { name: 'ram', label: 'RAM', type: 'text', required: true },
-                            { name: 'storage', label: 'Storage', type: 'text', required: true },
-                            { name: 'color', label: 'Color', type: 'text', required: true },
-                            { name: 'grade', label: 'GRADE', type: 'select', options: GRADES, required: true }
+                            { name: 'ram', label: 'RAM', type: 'select', options: RAM_OPTIONS, required: true },
+                            { name: 'storage', label: 'Storage', type: 'select', options: STORAGE_OPTIONS_PHONE, required: true },
+                            { name: 'color', label: 'Color', type: 'select', options: ANDROID_COLORS, required: true },
+                            { name: 'grade', label: 'Grade', type: 'select', options: GRADES, required: true },
                         ];
                         break;
                     case 'Chromebooks':
                         fields = [
-                            { name: 'brand', label: 'Brand', type: 'text', required: true },
+                            { name: 'brand', label: 'Brand', type: 'select', options: ['Acer', 'Asus', 'Dell', 'HP', 'Lenovo', 'Samsung', 'Google', 'Other'], required: true },
                             { name: 'model', label: 'Model', type: 'text', required: true },
-                            { name: 'processor', label: 'Processor', type: 'text', required: true },
-                            { name: 'ram', label: 'RAM', type: 'text', required: true },
-                            { name: 'storage', label: 'Storage', type: 'text', required: true },
-                            { name: 'screenSize', label: 'Screen Size', type: 'text', required: true },
-                            { name: 'touchscreen', label: 'Touch Screen', type: 'select', options: ['No Touch', 'Touch'], required: true }
+                            { name: 'processor', label: 'Processor', type: 'select', options: PROCESSORS_CHROMEBOOK, required: true },
+                            { name: 'ram', label: 'RAM', type: 'select', options: ['2GB', '4GB', '8GB', '16GB', 'Other'], required: true },
+                            { name: 'storage', label: 'Storage', type: 'select', options: ['16GB', '32GB', '64GB', '128GB', '256GB', 'Other'], required: true },
+                            { name: 'screenSize', label: 'Screen Size', type: 'select', options: ['10.1"', '11"', '11.6"', '12"', '13"', '13.3"', '14"', '15.6"', 'Other'], required: true },
+                            { name: 'touchscreen', label: 'Touch Screen', type: 'select', options: ['No Touch', 'Touch'], required: true },
+                        ];
+                        break;
+                    case 'Apple Accessory':
+                        fields = [
+                            { name: 'brand', label: 'Brand', type: 'select', options: ['Apple', 'Other'], required: true },
+                            { name: 'model', label: 'Model', type: 'text', required: true },
+                            { name: 'condition', label: 'Condition', type: 'select', options: ['New', 'Open Box', 'Refurbished', 'Used', 'Other'], required: true },
+                            { name: 'grade', label: 'Grade', type: 'select', options: GRADES, required: true },
                         ];
                         break;
                     case 'Other':
                         fields = [
                             { name: 'brand', label: 'Brand', type: 'text', required: true },
                             { name: 'model', label: 'Model', type: 'text', required: true },
-                            { name: 'description', label: 'Description', type: 'textarea', required: true }
+                            { name: 'description', label: 'Description', type: 'textarea', required: true },
                         ];
                         break;
                     default:
                         fields = [];
                 }
-                
-                // Add SKU field at the bottom for ALL categories
+
                 fields.push({ name: 'sku', label: 'SKU *', type: 'text', required: true });
-                
                 return fields;
             };
             
@@ -1015,7 +1400,7 @@
             };
             
             const handleProcessUnit = async () => {
-                const fields = getSpecFields(selectedBatch.category);
+                const fields = getSpecFields(selectedBatch.category, specs);
                 const missing = fields.filter(f => f.required && !specs[f.name]);
                 
                 if (missing.length > 0) {
@@ -1025,17 +1410,24 @@
                 }
                 
                 try {
+                    // Strip internal __isOther tracking keys before saving
+                    const cleanSpecs = Object.fromEntries(
+                        Object.entries(specs).filter(([k]) => !k.endsWith('__isOther'))
+                    );
                     const updatedUnits = selectedBatch.units.map(u =>
                         u.unitNumber === currentUnit.unitNumber
-                            ? { ...u, completed: true, specs: specs, processedBy: employeeName, processedAt: new Date().toISOString() }
+                            ? { ...u, completed: true, specs: cleanSpecs, processedBy: employeeName, processedAt: new Date().toISOString() }
                             : u
                     );
                     
-                    await db.collection('studentTechBatches').doc(selectedBatch.id).update({
-                        units: updatedUnits
-                    });
+                    const allDone = updatedUnits.every(u => u.completed);
+                    const batchUpdate = { units: updatedUnits };
+                    if (allDone) {
+                        batchUpdate.completedAt = new Date().toISOString();
+                    }
+                    await db.collection('studentTechBatches').doc(selectedBatch.id).update(batchUpdate);
                     
-                    printLabel(selectedBatch.category, specs);
+                    printLabel(selectedBatch.category, cleanSpecs, selectedBatch.purchasePrice);
                     
                     const completedCount = updatedUnits.filter(u => u.completed).length;
                     setSuccessMessage(`✅ Unit ${currentUnit.unitNumber}/${selectedBatch.quantity} complete! (${completedCount}/${selectedBatch.quantity} total)`);
@@ -1051,13 +1443,18 @@
                 }
             };
             
-            const printLabel = (category, specs) => {
+            const printLabel = (category, specs, purchasePrice) => {
                 const brand = specs.brand || '';
                 const model = specs.model || '';
                 const productName = brand && model ? `${brand} ${model}` : (brand || model || category);
                 const productType = category;
                 const sku = specs.sku || 'NO-SKU';
                 const grade = specs.grade || '';
+                
+                // Generate coded item code: cost + 3 random digits
+                const cost = Math.round(parseFloat(purchasePrice) || 0);
+                const randomSuffix = Math.floor(100 + Math.random() * 900); // always 3 digits
+                const itemCode = cost > 0 ? `${cost}${randomSuffix}` : null;
                 
                 let infoRows = [];
                 if (specs.storage) infoRows.push({ label: 'Storage', value: specs.storage });
@@ -1071,6 +1468,7 @@
                 if (specs.connectivity) infoRows.push({ label: 'Network', value: specs.connectivity });
                 if (specs.touchscreen) infoRows.push({ label: 'Touch', value: specs.touchscreen });
                 if (specs.condition) infoRows.push({ label: 'Condition', value: specs.condition });
+                if (itemCode) infoRows.push({ label: 'Item Code', value: itemCode });
                 
                 const infoRowsHTML = infoRows.map(r => 
                     `<div class="info-row"><span class="info-label">${r.label}:</span><span class="info-value">${r.value}</span></div>`
@@ -1385,7 +1783,7 @@
                 // Print each selected unit's label with a delay
                 unitsToReprint.forEach((unit, index) => {
                     setTimeout(() => {
-                        printLabel(reprintBatch.category, unit.specs);
+                        printLabel(reprintBatch.category, unit.specs, reprintBatch.purchasePrice);
                     }, index * 1000);
                 });
                 
@@ -1446,6 +1844,17 @@
                             onClick={() => setCurrentTab('queue')}
                         >
                             📊 Processing Queue
+                        </button>
+                        <button
+                            className={`nav-tab ${currentTab === 'completed' ? 'active' : ''}`}
+                            onClick={() => setCurrentTab('completed')}
+                        >
+                            ✅ Completed
+                            {batches.filter(b => getCompletedCount(b) === b.quantity).length > 0 && (
+                                <span style={{marginLeft: '0.4rem', background: 'rgba(16,185,129,0.3)', color: '#10b981', borderRadius: '12px', padding: '0.1rem 0.5rem', fontSize: '0.75rem', fontWeight: 700}}>
+                                    {batches.filter(b => getCompletedCount(b) === b.quantity).length}
+                                </span>
+                            )}
                         </button>
                         <button
                             className={`nav-tab ${currentTab === 'add' ? 'active' : ''}`}
@@ -1595,94 +2004,227 @@
                             </div>
                         )}
                         
-                        {currentTab === 'queue' && (
-                            <div className="table-container">
-                                <div className="search-filter" style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
-                                    <input
-                                        type="text"
-                                        className="search-input"
-                                        placeholder="🔍 Search by device, category or vendor..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                    <select
-                                        className="form-select"
-                                        style={{maxWidth: '200px'}}
-                                        value={filterCategory}
-                                        onChange={(e) => setFilterCategory(e.target.value)}
-                                    >
-                                        <option value="all">All Categories</option>
-                                        {DEVICE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                                    </select>
-                                </div>
-                                
-                                {filteredBatches.length === 0 ? (
-                                    <div style={{textAlign: 'center', padding: '3rem', color: 'rgba(255,255,255,0.5)'}}>
-                                        No batches found
+                        {currentTab === 'queue' && (() => {
+                            const formatDate = (isoStr) => {
+                                if (!isoStr) return '—';
+                                const d = new Date(isoStr);
+                                return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) +
+                                       ' · ' + d.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: true });
+                            };
+
+                            const pendingBatches = filteredBatches.filter(b => getCompletedCount(b) < b.quantity);
+
+                            return (
+                                <div>
+                                    {/* ── SEARCH + FILTER ── */}
+                                    <div className="table-container" style={{marginBottom: '1.5rem'}}>
+                                        <div className="search-filter" style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center'}}>
+                                            <input
+                                                type="text"
+                                                className="search-input"
+                                                placeholder="🔍 Search by device, category or vendor..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                            />
+                                            <select
+                                                className="form-select"
+                                                style={{maxWidth: '200px'}}
+                                                value={filterCategory}
+                                                onChange={(e) => setFilterCategory(e.target.value)}
+                                            >
+                                                <option value="all">All Categories</option>
+                                                {DEVICE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                            </select>
+                                        </div>
                                     </div>
-                                ) : (
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Device Name</th>
-                                                <th>Category</th>
-                                                <th>Vendor</th>
-                                                <th>Progress</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {filteredBatches.map(batch => {
-                                                const completedCount = getCompletedCount(batch);
-                                                const isComplete = completedCount === batch.quantity;
-                                                const progressColor = isComplete ? '#10b981' : completedCount > 0 ? '#4facfe' : 'rgba(255,255,255,0.3)';
-                                                
-                                                return (
-                                                    <tr key={batch.id}>
-                                                        <td style={{fontWeight: 600}}>{batch.deviceName || 'N/A'}</td>
-                                                        <td>{batch.category}</td>
-                                                        <td>{batch.vendor}</td>
-                                                        <td style={{fontWeight: 600}}>
-                                                            <span style={{color: progressColor}}>
-                                                                {completedCount}/{batch.quantity}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <div className="action-buttons">
-                                                                <button
-                                                                    className="btn-start"
-                                                                    onClick={() => startProcessing(batch)}
-                                                                    disabled={isComplete}
-                                                                >
-                                                                    {isComplete ? 'Completed ✓' : 'Process →'}
-                                                                </button>
-                                                                
-                                                                <button
-                                                                    className="btn-reprint"
-                                                                    onClick={() => handleOpenReprintModal(batch)}
-                                                                    disabled={completedCount === 0}
-                                                                    title={completedCount === 0 ? 'No completed units to reprint' : `Reprint label(s)`}
-                                                                >
-                                                                    🖨️ Reprint Label
-                                                                </button>
-                                                                
-                                                                <button
-                                                                    className="btn-delete"
-                                                                    onClick={() => handleDeleteBatch(batch)}
-                                                                    title="Delete this batch"
-                                                                >
-                                                                    🗑️ Delete
-                                                                </button>
-                                                            </div>
-                                                        </td>
+
+                                    {/* ── PROCESSING QUEUE ── */}
+                                    <div className="table-container">
+                                        <div style={{padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                                            <span style={{fontSize: '1.05rem', fontWeight: 700, color: '#4facfe'}}>⏳ Processing Queue</span>
+                                            <span style={{background: 'rgba(79,172,254,0.2)', color: '#4facfe', borderRadius: '20px', padding: '0.15rem 0.6rem', fontSize: '0.8rem', fontWeight: 700}}>{pendingBatches.length}</span>
+                                        </div>
+                                        {pendingBatches.length === 0 ? (
+                                            <div style={{textAlign: 'center', padding: '3rem', color: 'rgba(255,255,255,0.4)'}}>
+                                                🎉 Queue is clear — all batches have been processed!
+                                            </div>
+                                        ) : (
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Device Name</th>
+                                                        <th>Category</th>
+                                                        <th>Vendor</th>
+                                                        <th>Progress</th>
+                                                        <th>Added</th>
+                                                        <th>Actions</th>
                                                     </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                )}
-                            </div>
-                        )}
+                                                </thead>
+                                                <tbody>
+                                                    {pendingBatches.map(batch => {
+                                                        const completedCount = getCompletedCount(batch);
+                                                        const progressColor = completedCount > 0 ? '#4facfe' : 'rgba(255,255,255,0.4)';
+                                                        return (
+                                                            <tr key={batch.id}>
+                                                                <td style={{fontWeight: 600}}>{batch.deviceName || 'N/A'}</td>
+                                                                <td>{batch.category}</td>
+                                                                <td>{batch.vendor}</td>
+                                                                <td style={{fontWeight: 600}}>
+                                                                    <span style={{color: progressColor}}>{completedCount}/{batch.quantity}</span>
+                                                                </td>
+                                                                <td style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', whiteSpace: 'nowrap'}}>
+                                                                    {formatDate(batch.timestamp)}
+                                                                </td>
+                                                                <td>
+                                                                    <div className="action-buttons">
+                                                                        <button className="btn-start" onClick={() => startProcessing(batch)}>
+                                                                            Process →
+                                                                        </button>
+                                                                        <button
+                                                                            className="btn-reprint"
+                                                                            onClick={() => handleOpenReprintModal(batch)}
+                                                                            disabled={completedCount === 0}
+                                                                            title={completedCount === 0 ? 'No completed units to reprint' : 'Reprint label(s)'}
+                                                                        >
+                                                                            🖨️ Reprint Label
+                                                                        </button>
+                                                                        <button className="btn-delete" onClick={() => handleDeleteBatch(batch)} title="Delete this batch">
+                                                                            🗑️ Delete
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {currentTab === 'completed' && (() => {
+                            const formatDate = (isoStr) => {
+                                if (!isoStr) return '—';
+                                const d = new Date(isoStr);
+                                return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) +
+                                       ' · ' + d.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: true });
+                            };
+
+                            const allCompleted = batches.filter(b => getCompletedCount(b) === b.quantity);
+
+                            const filteredCompleted = allCompleted.filter(b => {
+                                const matchSearch = !compSearch.trim() ||
+                                    (b.deviceName || '').toLowerCase().includes(compSearch.toLowerCase()) ||
+                                    (b.vendor || '').toLowerCase().includes(compSearch.toLowerCase()) ||
+                                    (b.category || '').toLowerCase().includes(compSearch.toLowerCase());
+                                const matchCat = compCategory === 'all' || b.category === compCategory;
+                                return matchSearch && matchCat;
+                            });
+
+                            const totalUnits = allCompleted.reduce((sum, b) => sum + (b.quantity || 0), 0);
+
+                            return (
+                                <div>
+                                    {/* ── STATS ROW ── */}
+                                    <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem'}}>
+                                        {[
+                                            { label: 'Total Batches', value: allCompleted.length, color: '#10b981', icon: '📦' },
+                                            { label: 'Total Units', value: totalUnits, color: '#4facfe', icon: '📱' },
+                                            { label: 'Categories', value: [...new Set(allCompleted.map(b => b.category))].length, color: '#a78bfa', icon: '🗂️' },
+                                        ].map(stat => (
+                                            <div key={stat.label} style={{background: 'rgba(26,31,58,0.6)', border: `1px solid ${stat.color}30`, borderRadius: '16px', padding: '1.25rem 1.5rem', backdropFilter: 'blur(10px)'}}>
+                                                <div style={{fontSize: '1.6rem', marginBottom: '0.3rem'}}>{stat.icon}</div>
+                                                <div style={{fontSize: '2rem', fontWeight: 800, color: stat.color, lineHeight: 1}}>{stat.value}</div>
+                                                <div style={{fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.3rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px'}}>{stat.label}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* ── SEARCH + FILTER ── */}
+                                    <div className="table-container" style={{marginBottom: '1.5rem'}}>
+                                        <div className="search-filter" style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center'}}>
+                                            <input
+                                                type="text"
+                                                className="search-input"
+                                                placeholder="🔍 Search completed batches..."
+                                                value={compSearch}
+                                                onChange={(e) => setCompSearch(e.target.value)}
+                                            />
+                                            <select
+                                                className="form-select"
+                                                style={{maxWidth: '200px'}}
+                                                value={compCategory}
+                                                onChange={(e) => setCompCategory(e.target.value)}
+                                            >
+                                                <option value="all">All Categories</option>
+                                                {DEVICE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* ── COMPLETED TABLE ── */}
+                                    <div className="table-container">
+                                        <div style={{padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                                            <span style={{fontSize: '1.05rem', fontWeight: 700, color: '#10b981'}}>✅ Completed Batches</span>
+                                            <span style={{background: 'rgba(16,185,129,0.2)', color: '#10b981', borderRadius: '20px', padding: '0.15rem 0.6rem', fontSize: '0.8rem', fontWeight: 700}}>{filteredCompleted.length}</span>
+                                        </div>
+                                        {filteredCompleted.length === 0 ? (
+                                            <div style={{textAlign: 'center', padding: '3rem', color: 'rgba(255,255,255,0.4)'}}>
+                                                {allCompleted.length === 0 ? '📭 No completed batches yet' : '🔍 No results match your search'}
+                                            </div>
+                                        ) : (
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Device Name</th>
+                                                        <th>Category</th>
+                                                        <th>Vendor</th>
+                                                        <th>Units</th>
+                                                        <th>Added</th>
+                                                        <th>Completed</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {filteredCompleted.map(batch => (
+                                                        <tr key={batch.id}>
+                                                            <td style={{fontWeight: 600}}>{batch.deviceName || 'N/A'}</td>
+                                                            <td>{batch.category}</td>
+                                                            <td>{batch.vendor}</td>
+                                                            <td>
+                                                                <span style={{color: '#10b981', fontWeight: 700}}>{batch.quantity}/{batch.quantity}</span>
+                                                            </td>
+                                                            <td style={{color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem', whiteSpace: 'nowrap'}}>
+                                                                {formatDate(batch.timestamp)}
+                                                            </td>
+                                                            <td style={{fontSize: '0.85rem', whiteSpace: 'nowrap'}}>
+                                                                <span style={{color: '#10b981', fontWeight: 600}}>{formatDate(batch.completedAt || batch.timestamp)}</span>
+                                                            </td>
+                                                            <td>
+                                                                <div className="action-buttons">
+                                                                    <button
+                                                                        className="btn-reprint"
+                                                                        onClick={() => handleOpenReprintModal(batch)}
+                                                                        title="Reprint label(s)"
+                                                                    >
+                                                                        🖨️ Reprint Label
+                                                                    </button>
+                                                                    <button className="btn-delete" onClick={() => handleDeleteBatch(batch)} title="Delete this batch">
+                                                                        🗑️ Delete
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </div>
                     
                     {selectedBatch && currentUnit && (
@@ -1706,18 +2248,44 @@
                                 </div>
                                 
                                 <div className="grid-2">
-                                    {getSpecFields(selectedBatch.category).map(field => (
+                                    {getSpecFields(selectedBatch.category, specs).map(field => (
                                         <div key={field.name} className="form-group">
                                             <label className="form-label">{field.label} {field.required && '*'}</label>
                                             {field.type === 'select' ? (
-                                                <select
-                                                    className="form-select"
-                                                    value={specs[field.name] || ''}
-                                                    onChange={(e) => setSpecs({...specs, [field.name]: e.target.value})}
-                                                >
-                                                    <option value="">Select {field.label}</option>
-                                                    {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                                                </select>
+                                                <div>
+                                                    <select
+                                                        className="form-select"
+                                                        value={specs[`${field.name}__isOther`] ? 'Other' : (specs[field.name] || '')}
+                                                        onChange={(e) => {
+                                                            if (e.target.value === 'Other') {
+                                                                setSpecs({...specs, [field.name]: '', [`${field.name}__isOther`]: true});
+                                                            } else {
+                                                                const newSpecs = {...specs, [field.name]: e.target.value};
+                                                                delete newSpecs[`${field.name}__isOther`];
+                                                                // Clear color when model changes for dynamic color fields
+                                                                if (field.name === 'model' && ['iPhone', 'iPads', 'Macbooks'].includes(selectedBatch.category)) {
+                                                                    delete newSpecs.color;
+                                                                    delete newSpecs['color__isOther'];
+                                                                }
+                                                                setSpecs(newSpecs);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <option value="">Select {field.label}</option>
+                                                        {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                                    </select>
+                                                    {specs[`${field.name}__isOther`] && (
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            style={{marginTop: '0.5rem'}}
+                                                            placeholder={`Enter custom ${field.label}...`}
+                                                            value={specs[field.name] || ''}
+                                                            onChange={(e) => setSpecs({...specs, [field.name]: e.target.value})}
+                                                            autoFocus
+                                                        />
+                                                    )}
+                                                </div>
                                             ) : field.type === 'textarea' ? (
                                                 <textarea
                                                     className="form-control"
@@ -1730,7 +2298,7 @@
                                                     className="form-control"
                                                     value={specs[field.name] || ''}
                                                     onChange={(e) => setSpecs({...specs, [field.name]: e.target.value})}
-                                                    placeholder={field.name === 'sku' ? (selectedBatch.sameSKUForAll ? 'SKU (from batch)' : 'Enter SKU manually') : ''}
+                                                    placeholder={field.name === 'sku' ? (selectedBatch.sameSKUForAll ? 'SKU (from batch)' : 'Enter SKU manually') : `Enter ${field.label}...`}
                                                     readOnly={field.name === 'sku' && selectedBatch.sameSKUForAll}
                                                 />
                                             )}
