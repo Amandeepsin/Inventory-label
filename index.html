@@ -1215,7 +1215,7 @@
                 const AIRPODS_MODELS = ['AirPods (1st gen)', 'AirPods (2nd gen)', 'AirPods (3rd gen)', 'AirPods (4th gen)', 'AirPods Pro (1st gen)', 'AirPods Pro (2nd gen)', 'AirPods Max (Lightning)', 'AirPods Max (USB-C)', 'Other'];
                 const IWATCH_COLORS = ['Midnight', 'Starlight', 'Silver', 'Product Red', 'Black', 'White', 'Gold', 'Blue', 'Green', 'Pink', 'Yellow', 'Orange', 'Titanium', 'Natural Titanium', 'Black Titanium', 'Other'];
                 const ANDROID_COLORS = ['Black', 'White', 'Blue', 'Green', 'Red', 'Gold', 'Silver', 'Grey', 'Purple', 'Pink', 'Yellow', 'Orange', 'Other'];
-                const PROCESSORS_LAPTOP = ['Intel Core i3', 'Intel Core i5', 'Intel Core i7', 'Intel Core i9', 'Intel Core Ultra 5', 'Intel Core Ultra 7', 'Intel Core Ultra 9', 'Intel Celeron N4000', 'Intel Celeron N4100', 'Intel Celeron N4500', 'Intel Celeron N5100', 'Intel Pentium Silver', 'AMD Ryzen 3', 'AMD Ryzen 5', 'AMD Ryzen 7', 'AMD Ryzen 9', 'AMD A-Series', 'Qualcomm Snapdragon X', 'Other'];
+                const PROCESSORS_LAPTOP = ['i3', 'i5', 'i7', 'i9', 'R3', 'R5', 'R7', 'R9', 'Other'];
                 const PROCESSORS_CHROMEBOOK = ['Intel Celeron N4000', 'Intel Celeron N4100', 'Intel Celeron N4500', 'Intel Celeron N5100', 'Intel Core i3', 'Intel Core i5', 'Intel Core i7', 'MediaTek Kompanio 500', 'MediaTek Kompanio 520', 'Qualcomm Snapdragon 7c', 'Qualcomm Snapdragon 7c Gen 2', 'AMD A4', 'AMD Ryzen 3', 'AMD Ryzen 5', 'Other'];
 
                 // Dynamic color options based on selected model
@@ -1235,6 +1235,7 @@
                             { name: 'brand', label: 'Brand', type: 'select', options: ['Acer', 'Asus', 'Dell', 'HP', 'Lenovo', 'Microsoft', 'MSI', 'Samsung', 'Toshiba', 'Other'], required: true },
                             { name: 'model', label: 'Model', type: 'text', required: true },
                             { name: 'processor', label: 'Processor', type: 'select', options: PROCESSORS_LAPTOP, required: true },
+                            { name: 'generation', label: 'Generation', type: 'text', required: true },
                             { name: 'ram', label: 'RAM', type: 'select', options: RAM_OPTIONS, required: true },
                             { name: 'storage', label: 'Storage', type: 'select', options: STORAGE_OPTIONS_LAPTOP, required: true },
                             { name: 'screenSize', label: 'Screen Size', type: 'select', options: SCREEN_SIZES_LAPTOP, required: true },
@@ -1461,6 +1462,7 @@
                 if (specs.color) infoRows.push({ label: 'Color', value: specs.color });
                 if (specs.ram) infoRows.push({ label: 'RAM', value: specs.ram });
                 if (specs.processor) infoRows.push({ label: 'CPU', value: specs.processor });
+                if (specs.generation) infoRows.push({ label: 'Gen', value: specs.generation });
                 if (specs.chip) infoRows.push({ label: 'Chip', value: specs.chip });
                 if (specs.year) infoRows.push({ label: 'Year', value: specs.year });
                 if (specs.screenSize) infoRows.push({ label: 'Screen', value: specs.screenSize });
