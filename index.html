@@ -1485,8 +1485,8 @@
                             .label {
                                 background: white;
                                 border: 2px solid #000;
-                                width: 1in;
-                                height: 2in;
+                                width: 2in;
+                                height: 1in;
                                 overflow: hidden;
                                 display: flex;
                                 flex-direction: column;
@@ -1558,7 +1558,7 @@
                                 min-width: 0;
                             }
                             .detail-barcode {
-                                width: 0.35in;
+                                width: 0.72in;
                                 flex-shrink: 0;
                                 align-self: stretch;
                                 display: flex;
@@ -1571,8 +1571,8 @@
                                 align-items: center;
                                 justify-content: center;
                                 transform: rotate(90deg);
-                                width: 1.6in;
-                                height: 0.3in;
+                                width: 0.82in;
+                                height: 0.58in;
                             }
                             .barcode-wrap svg {
                                 display: block;
@@ -1602,7 +1602,7 @@
                             }
                             @media print {
                                 @page {
-                                    size: 1in 2in;
+                                    size: 2in 1in;
                                     margin: 0;
                                 }
                                 body {
@@ -1613,9 +1613,9 @@
                                     display: block;
                                 }
                                 .label {
-                                    border: none;
-                                    width: 1in;
-                                    height: 2in;
+                                    border: 2px solid #000;
+                                    width: 2in;
+                                    height: 1in;
                                     page-break-after: always;
                                     page-break-inside: avoid;
                                 }
