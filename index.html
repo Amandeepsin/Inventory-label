@@ -1474,7 +1474,7 @@
                         <style>
                             * { margin: 0; padding: 0; box-sizing: border-box; }
                             body {
-                                font-family: 'Arial', sans-serif;
+                                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
                                 background: #f5f5f5;
                                 display: flex;
                                 flex-direction: column;
@@ -1484,7 +1484,7 @@
                             }
                             .label {
                                 background: white;
-                                border: 2px solid #000;
+                                border: none;
                                 width: 2in;
                                 height: 1in;
                                 overflow: hidden;
@@ -1493,89 +1493,72 @@
                             }
                             /* --- Detail label (label 1) --- */
                             .detail-header {
-                                font-size: 7px;
-                                font-weight: bold;
+                                font-size: 8px;
+                                font-weight: 900;
                                 text-align: center;
                                 border-bottom: 1.5px solid #000;
-                                padding: 1px 3px;
+                                padding: 6px 4px 2px 4px;
                                 color: #000;
                                 white-space: nowrap;
                                 overflow: hidden;
-                                letter-spacing: 0.2px;
+                                letter-spacing: 0.5px;
+                                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
                             }
                             .detail-body {
                                 display: flex;
                                 flex: 1;
                                 align-items: stretch;
                                 overflow: hidden;
+                                padding: 4px 5px;
                             }
                             .detail-specs {
                                 flex: 1;
                                 min-width: 0;
-                                padding: 2px 3px;
-                                border-right: 1px solid #000;
                                 display: flex;
                                 flex-direction: column;
                                 justify-content: center;
                                 overflow: hidden;
+                                gap: 1.5px;
                             }
                             .spec-name {
-                                font-size: 6.5px;
-                                font-weight: bold;
+                                font-size: 8px;
+                                font-weight: 900;
                                 color: #000;
-                                line-height: 1.1;
-                                margin-bottom: 1px;
+                                line-height: 1.2;
+                                margin-bottom: 2px;
                                 white-space: nowrap;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
+                                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
                             }
                             .info-row {
                                 display: flex;
                                 justify-content: space-between;
                                 align-items: baseline;
-                                gap: 2px;
-                                border-bottom: 0.5px solid #999;
-                                padding: 0.5px 0;
+                                gap: 4px;
+                                border-bottom: 0.5px solid #bbb;
+                                padding: 1px 0;
                                 line-height: 1;
                             }
                             .info-row:last-child { border-bottom: none; }
                             .info-label {
-                                font-size: 5px;
-                                font-weight: bold;
+                                font-size: 6.5px;
+                                font-weight: 800;
                                 color: #000;
                                 white-space: nowrap;
                                 flex-shrink: 0;
+                                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
                             }
                             .info-value {
-                                font-size: 5px;
-                                font-weight: bold;
-                                font-family: monospace;
+                                font-size: 6.5px;
+                                font-weight: 800;
                                 color: #000;
                                 white-space: nowrap;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
                                 text-align: right;
                                 min-width: 0;
-                            }
-                            .detail-barcode {
-                                width: 0.72in;
-                                flex-shrink: 0;
-                                align-self: stretch;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                overflow: hidden;
-                            }
-                            .barcode-wrap {
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                transform: rotate(90deg);
-                                width: 0.82in;
-                                height: 0.58in;
-                            }
-                            .barcode-wrap svg {
-                                display: block;
+                                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
                             }
                             /* --- Box label (label 2) --- */
                             .label-box {
@@ -1583,22 +1566,28 @@
                                 flex-direction: column;
                                 justify-content: center;
                                 align-items: center;
-                                padding: 6px 8px;
-                                gap: 3px;
+                                padding: 4px 6px;
+                                gap: 2px;
                             }
                             .box-label-text {
-                                font-size: 15px;
+                                font-size: 13px;
                                 font-weight: bold;
                                 color: #000;
                                 text-align: center;
                                 line-height: 1.2;
                             }
                             .box-label-specs {
-                                font-size: 10px;
+                                font-size: 8px;
                                 font-weight: bold;
                                 color: #000;
                                 text-align: center;
                                 line-height: 1.3;
+                            }
+                            .box-barcode {
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                margin-top: 2px;
                             }
                             @media print {
                                 @page {
@@ -1613,7 +1602,7 @@
                                     display: block;
                                 }
                                 .label {
-                                    border: 2px solid #000;
+                                    border: none;
                                     width: 2in;
                                     height: 1in;
                                     page-break-after: always;
@@ -1632,23 +1621,18 @@
                         </style>
                     </head>
                     <body>
-                        <!-- Label 1: Detail label — specs left, barcode right -->
+                        <!-- Label 1: Details only, no barcode -->
                         <div class="label">
                             <div class="detail-header">STUDENT TECH SHOP</div>
                             <div class="detail-body">
-                                <div class="detail-specs">
+                                <div class="detail-specs" style="border-right: none;">
                                     <div class="spec-name">${productName}</div>
                                     ${infoRowsHTML}
-                                </div>
-                                <div class="detail-barcode">
-                                    <div class="barcode-wrap">
-                                        <svg id="barcode1"></svg>
-                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Label 2: Box label (large text) -->
+                        <!-- Label 2: Box label with barcode -->
                         <div class="label label-box">
                             <div class="box-label-text">${productName}</div>
                             <div class="box-label-specs">${[
@@ -1658,16 +1642,22 @@
                                 specs.chip,
                                 specs.processor
                             ].filter(Boolean).join(' • ')}</div>
+                            <div class="box-barcode">
+                                <svg id="barcode1"></svg>
+                            </div>
+                            ${specs.imei ? '<div class="box-barcode"><svg id="imeiBarcode"></svg></div>' : ''}
                         </div>
 
                         <script>
                             JsBarcode("#barcode1", "${sku || 'NO-SKU'}", {
                                 format: "CODE128",
-                                width: 1.5,
-                                height: 42,
+                                width: 1,
+                                height: 22,
                                 displayValue: true,
                                 fontSize: 7,
-                                margin: 1,
+                                margin: 6,
+                                marginLeft: 10,
+                                marginRight: 10,
                                 background: "#ffffff",
                                 lineColor: "#000000"
                             });
@@ -1675,10 +1665,10 @@
                             ${specs.imei ? `
                             JsBarcode("#imeiBarcode", "${specs.imei}", {
                                 format: "CODE128",
-                                width: 0.8,
-                                height: 14,
+                                width: 1,
+                                height: 18,
                                 displayValue: true,
-                                fontSize: 5,
+                                fontSize: 6,
                                 margin: 1,
                                 background: "#ffffff",
                                 lineColor: "#000000"
