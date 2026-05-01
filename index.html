@@ -901,12 +901,7 @@
         
         const GRADES = ['A+', 'A', 'B+', 'B', 'C+', 'C', 'D', 'F'];
         
-        const LABEL_TEMPLATES = [
-            { id: '4x2-standard', name: 'Standard 4×2"', width: '4in', height: '2in' },
-            { id: '4x3-extended', name: 'Extended 4×3"', width: '4in', height: '3in' },
-            { id: '4x6-large', name: 'Large 4×6"', width: '4in', height: '6in' },
-            { id: '3x2-compact', name: 'Compact 3×2"', width: '3in', height: '2in' }
-        ];
+
         
         function App() {
             // Check for existing session before initializing state
@@ -954,8 +949,7 @@
             const [sameSKUForAll, setSameSKUForAll] = useState(false);
             const [batchSKU, setBatchSKU] = useState('');
             
-            // Label Settings
-            const [labelTemplate, setLabelTemplate] = useState('4x2-standard');
+
             
             const [successMessage, setSuccessMessage] = useState('');
             const [errorMessage, setErrorMessage] = useState('');
@@ -970,13 +964,7 @@
                 filterBatches();
             }, [batches, searchTerm, filterCategory]);
             
-            // Load label template from localStorage
-            useEffect(() => {
-                const savedTemplate = localStorage.getItem('labelTemplate');
-                if (savedTemplate) {
-                    setLabelTemplate(savedTemplate);
-                }
-            }, []);
+
             
             const loadBatches = async () => {
                 try {
@@ -1481,226 +1469,228 @@
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>Label - ${productName}</title>
+                        <title>Labels - ${productName}</title>
                         <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
                         <style>
                             * { margin: 0; padding: 0; box-sizing: border-box; }
                             body {
                                 font-family: 'Arial', sans-serif;
-                                display: flex;
-                                justify-content: center;
-                                align-items: center;
-                                padding: 10px;
                                 background: #f5f5f5;
-                            }
-                            .label-sheet {
                                 display: flex;
-                                gap: 0.25in;
-                                width: 4in;
-                                height: 2in;
-                                background: white;
+                                flex-direction: column;
+                                align-items: center;
+                                gap: 16px;
+                                padding: 16px;
                             }
                             .label {
                                 background: white;
                                 border: 2px solid #000;
-                                padding: 6px;
-                                text-align: center;
-                                width: 1.875in;
+                                width: 1in;
                                 height: 2in;
+                                overflow: hidden;
                                 display: flex;
                                 flex-direction: column;
+                            }
+                            /* --- Detail label (label 1) --- */
+                            .detail-header {
+                                font-size: 7px;
+                                font-weight: bold;
+                                text-align: center;
+                                border-bottom: 1.5px solid #000;
+                                padding: 1px 3px;
+                                color: #000;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                letter-spacing: 0.2px;
+                            }
+                            .detail-body {
+                                display: flex;
+                                flex: 1;
+                                align-items: stretch;
                                 overflow: hidden;
                             }
-                            .company-name {
-                                font-size: 9px;
-                                font-weight: bold;
-                                margin-bottom: 2px;
-                                padding-bottom: 2px;
-                                border-bottom: 2px solid #000;
-                                color: #000;
+                            .detail-specs {
+                                flex: 1;
+                                min-width: 0;
+                                padding: 2px 3px;
+                                border-right: 1px solid #000;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                overflow: hidden;
                             }
-                            .product-name {
-                                font-size: 8px;
+                            .spec-name {
+                                font-size: 6.5px;
                                 font-weight: bold;
-                                margin-bottom: 1px;
                                 color: #000;
                                 line-height: 1.1;
-                            }
-                            .product-type {
-                                font-size: 7px;
-                                font-weight: bold;
-                                color: #000;
-                                margin-bottom: 2px;
-                            }
-                            .sku {
-                                font-size: 7px;
-                                font-weight: bold;
-                                font-family: monospace;
-                                margin: 2px 0;
-                                padding: 2px;
-                                border: 1px solid #000;
-                                color: #000;
-                                background: white;
-                            }
-                            .grade-badge {
-                                display: inline-block;
-                                padding: 2px 6px;
-                                border: 2px solid #000;
-                                font-weight: bold;
-                                font-size: 7px;
-                                margin: 2px 0;
-                                color: #000;
-                                background: white;
-                            }
-                            .info-rows-container {
-                                flex: 1;
-                                text-align: left;
-                                margin-top: 2px;
+                                margin-bottom: 1px;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
                             }
                             .info-row {
                                 display: flex;
                                 justify-content: space-between;
-                                padding: 1px 0;
-                                border-bottom: 1px solid #000;
-                                font-size: 6px;
-                                line-height: 1.2;
+                                align-items: baseline;
+                                gap: 2px;
+                                border-bottom: 0.5px solid #999;
+                                padding: 0.5px 0;
+                                line-height: 1;
                             }
+                            .info-row:last-child { border-bottom: none; }
                             .info-label {
+                                font-size: 5px;
                                 font-weight: bold;
                                 color: #000;
                                 white-space: nowrap;
+                                flex-shrink: 0;
                             }
                             .info-value {
-                                color: #000;
+                                font-size: 5px;
                                 font-weight: bold;
                                 font-family: monospace;
+                                color: #000;
                                 white-space: nowrap;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
-                                font-size: 6px;
+                                text-align: right;
+                                min-width: 0;
                             }
-                            .barcode-container {
+                            .detail-barcode {
+                                width: 0.35in;
+                                flex-shrink: 0;
+                                align-self: stretch;
                                 display: flex;
-                                justify-content: center;
                                 align-items: center;
-                                margin-top: auto;
-                                padding-top: 2px;
+                                justify-content: center;
+                                overflow: hidden;
                             }
+                            .barcode-wrap {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                transform: rotate(90deg);
+                                width: 1.6in;
+                                height: 0.3in;
+                            }
+                            .barcode-wrap svg {
+                                display: block;
+                            }
+                            /* --- Box label (label 2) --- */
                             .label-box {
                                 display: flex;
                                 flex-direction: column;
                                 justify-content: center;
                                 align-items: center;
-                                padding: 10px;
+                                padding: 6px 8px;
+                                gap: 3px;
                             }
                             .box-label-text {
-                                font-size: 18px;
+                                font-size: 15px;
                                 font-weight: bold;
                                 color: #000;
                                 text-align: center;
                                 line-height: 1.2;
-                                margin-bottom: 8px;
                             }
                             .box-label-specs {
-                                font-size: 14px;
+                                font-size: 10px;
                                 font-weight: bold;
                                 color: #000;
                                 text-align: center;
                                 line-height: 1.3;
                             }
                             @media print {
-                                @page { 
-                                    size: 4in 2in landscape; 
-                                    margin: 0; 
+                                @page {
+                                    size: 1in 2in;
+                                    margin: 0;
                                 }
-                                body { 
-                                    background: white; 
-                                    padding: 0; 
-                                    margin: 0; 
+                                body {
+                                    background: white;
+                                    padding: 0;
+                                    margin: 0;
+                                    gap: 0;
+                                    display: block;
                                 }
-                                .label-sheet {
-                                    width: 4in;
+                                .label {
+                                    border: none;
+                                    width: 1in;
                                     height: 2in;
-                                    display: flex;
-                                    flex-direction: row;
-                                    gap: 0.25in;
-                                }
-                                .label { 
-                                    border: 2px solid #000; 
-                                    width: 1.875in;
-                                    height: 2in;
+                                    page-break-after: always;
                                     page-break-inside: avoid;
                                 }
-                                .company-name, .product-name, .product-type, 
-                                .sku, .info-label, .info-value, .grade-badge,
+                                .label:last-child {
+                                    page-break-after: avoid;
+                                }
+                                .detail-header, .spec-name, .info-label, .info-value,
                                 .box-label-text, .box-label-specs {
                                     color: #000 !important;
                                     font-weight: bold !important;
-                                    background: white !important;
+                                    -webkit-print-color-adjust: exact;
                                 }
                             }
                         </style>
                     </head>
                     <body>
-                        <div class="label-sheet">
-                            <!-- Label 1 (Left) -->
-                            <div class="label">
-                                <div class="company-name">STUDENT TECH SHOP</div>
-                                <div class="product-name">${productName}</div>
-                                <div class="info-rows-container">${infoRowsHTML}</div>
-                                <div class="barcode-container">
-                                    <svg id="barcode1"></svg>
+                        <!-- Label 1: Detail label — specs left, barcode right -->
+                        <div class="label">
+                            <div class="detail-header">STUDENT TECH SHOP</div>
+                            <div class="detail-body">
+                                <div class="detail-specs">
+                                    <div class="spec-name">${productName}</div>
+                                    ${infoRowsHTML}
                                 </div>
-                                ${specs.imei ? '<div class="barcode-container" style="margin-top: 4px;"><svg id="imeiBarcode"></svg></div>' : ''}
-                            </div>
-                            
-                            <!-- Label 2 (Right) - Box Label (Large Text) -->
-                            <div class="label label-box">
-                                <div class="box-label-text">${productName}</div>
-                                <div class="box-label-specs">${[
-                                    specs.storage,
-                                    specs.ram,
-                                    specs.color,
-                                    specs.chip,
-                                    specs.processor
-                                ].filter(Boolean).join(' • ')}</div>
+                                <div class="detail-barcode">
+                                    <div class="barcode-wrap">
+                                        <svg id="barcode1"></svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Label 2: Box label (large text) -->
+                        <div class="label label-box">
+                            <div class="box-label-text">${productName}</div>
+                            <div class="box-label-specs">${[
+                                specs.storage,
+                                specs.ram,
+                                specs.color,
+                                specs.chip,
+                                specs.processor
+                            ].filter(Boolean).join(' • ')}</div>
+                        </div>
+
                         <script>
-                            // Generate barcodes for both labels
                             JsBarcode("#barcode1", "${sku || 'NO-SKU'}", {
                                 format: "CODE128",
-                                width: 1.2,
-                                height: 35,
+                                width: 1.5,
+                                height: 42,
                                 displayValue: true,
-                                fontSize: 8,
-                                margin: 2,
+                                fontSize: 7,
+                                margin: 1,
                                 background: "#ffffff",
                                 lineColor: "#000000"
                             });
-                            
-                            // Generate IMEI barcode if available
+
                             ${specs.imei ? `
                             JsBarcode("#imeiBarcode", "${specs.imei}", {
                                 format: "CODE128",
-                                width: 1.2,
-                                height: 30,
+                                width: 0.8,
+                                height: 14,
                                 displayValue: true,
-                                fontSize: 7,
-                                margin: 2,
+                                fontSize: 5,
+                                margin: 1,
                                 background: "#ffffff",
                                 lineColor: "#000000"
                             });
                             ` : ''}
-                            
-                            // Auto-print when page loads
+
                             window.onload = function() {
                                 setTimeout(function() {
                                     window.print();
                                 }, 500);
                             };
-                            
-                            // Auto-close after 15 seconds to allow multiple copies to print
+
                             window.onafterprint = function() {
                                 setTimeout(function() {
                                     window.close();
@@ -1714,10 +1704,7 @@
             };
             
             
-            const handleTemplateChange = (templateId) => {
-                setLabelTemplate(templateId);
-                localStorage.setItem('labelTemplate', templateId);
-            };
+
             
             const handleDeleteBatch = async (batch) => {
                 const confirmDelete = window.confirm(
@@ -1979,28 +1966,12 @@
                         {currentTab === 'settings' && (
                             <div className="modal-content" style={{marginTop: 0}}>
                                 <h2 className="modal-title">Label Print Settings</h2>
-                                <div className="label-settings">
-                                    <div className="settings-title">Select Label Template</div>
-                                    <div className="grid-3">
-                                        {LABEL_TEMPLATES.map(template => (
-                                            <div
-                                                key={template.id}
-                                                className={`template-option ${labelTemplate === template.id ? 'active' : ''}`}
-                                                onClick={() => handleTemplateChange(template.id)}
-                                            >
-                                                <div className="template-name">{template.name}</div>
-                                                <div className="template-size">{template.width} × {template.height}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                
-                                <div style={{marginTop: '2rem', padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', border: '2px solid rgba(16, 185, 129, 0.3)'}}>
+                                <div style={{marginTop: '1rem', padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', border: '2px solid rgba(16, 185, 129, 0.3)'}}>
                                     <div style={{fontWeight: 700, marginBottom: '0.5rem', color: '#10b981'}}>
-                                        ✅ Current Template: {LABEL_TEMPLATES.find(t => t.id === labelTemplate)?.name}
+                                        ✅ Label Size: 2" × 1"
                                     </div>
                                     <div style={{fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)'}}>
-                                        This template will be used for all printed labels. Make sure your printer supports the selected size.
+                                        All labels are printed at 2×1 inch. Make sure your printer is configured for this size.
                                     </div>
                                 </div>
                             </div>
