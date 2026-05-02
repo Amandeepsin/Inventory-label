@@ -935,7 +935,9 @@
             
             const [reprintBatch, setReprintBatch] = useState(null);
             const [selectedUnitsForReprint, setSelectedUnitsForReprint] = useState([]);
+            const [selectedBatchIds, setSelectedBatchIds] = useState(new Set());
             const [sidebarOpen, setSidebarOpen] = useState(false);
+            const [checklistModal, setChecklistModal] = useState(null); // { sku, checks: {listed, cost, price, description, quantity} }
             const [sidebarSearch, setSidebarSearch] = useState('');
             const [compSearch, setCompSearch] = useState('');
             const [compCategory, setCompCategory] = useState('all');
@@ -1412,7 +1414,8 @@
                     const allDone = updatedUnits.every(u => u.completed);
                     const batchUpdate = { units: updatedUnits };
                     if (allDone) {
-                        batchUpdate.completedAt = new Date().toISOString();
+                        batchUpdate.status = 'pending_shopify';
+                        batchUpdate.processedAt = new Date().toISOString();
                     }
                     await db.collection('studentTechBatches').doc(selectedBatch.id).update(batchUpdate);
                     
@@ -1426,6 +1429,15 @@
                     setCurrentUnit(null);
                     setSpecs({});
                     loadBatches();
+
+                    if (allDone) {
+                        setChecklistModal({
+                            sku: cleanSpecs.sku || 'NO-SKU',
+                            batchId: selectedBatch.id,
+                            deviceName: selectedBatch.deviceName || selectedBatch.category,
+                            checks: { listed: false, cost: false, price: false, description: false, quantity: false }
+                        });
+                    }
                 } catch (error) {
                     setErrorMessage(`❌ ${error.message}`);
                     setTimeout(() => setErrorMessage(''), 3000);
@@ -1718,6 +1730,52 @@
                     setTimeout(() => setErrorMessage(''), 5000);
                 }
             };
+
+            const handleBulkDelete = async () => {
+                if (selectedBatchIds.size === 0) return;
+                const confirmDelete = window.confirm(
+                    `Are you sure you want to delete ${selectedBatchIds.size} batch(es)?\n\nThis action cannot be undone.`
+                );
+                if (!confirmDelete) return;
+                try {
+                    await Promise.all([...selectedBatchIds].map(id =>
+                        db.collection('studentTechBatches').doc(id).delete()
+                    ));
+                    setSuccessMessage(`✅ ${selectedBatchIds.size} batch(es) deleted!`);
+                    setTimeout(() => setSuccessMessage(''), 3000);
+                    setSelectedBatchIds(new Set());
+                    loadBatches();
+                } catch (error) {
+                    setErrorMessage(`❌ Bulk delete failed: ${error.message}`);
+                    setTimeout(() => setErrorMessage(''), 5000);
+                }
+            };
+
+            const toggleBatchSelection = (id) => {
+                setSelectedBatchIds(prev => {
+                    const next = new Set(prev);
+                    next.has(id) ? next.delete(id) : next.add(id);
+                    return next;
+                });
+            };
+
+            const toggleSelectAll = (batchList) => {
+                const allIds = batchList.map(b => b.id);
+                const allSelected = allIds.every(id => selectedBatchIds.has(id));
+                if (allSelected) {
+                    setSelectedBatchIds(prev => {
+                        const next = new Set(prev);
+                        allIds.forEach(id => next.delete(id));
+                        return next;
+                    });
+                } else {
+                    setSelectedBatchIds(prev => {
+                        const next = new Set(prev);
+                        allIds.forEach(id => next.add(id));
+                        return next;
+                    });
+                }
+            };
             
             const handleOpenReprintModal = (batch) => {
                 if (!batch.units) {
@@ -1825,13 +1883,24 @@
                             📊 Processing Queue
                         </button>
                         <button
+                            className={`nav-tab ${currentTab === 'pending_shopify' ? 'active' : ''}`}
+                            onClick={() => setCurrentTab('pending_shopify')}
+                        >
+                            🛍️ Pending Shopify
+                            {batches.filter(b => b.status === 'pending_shopify').length > 0 && (
+                                <span style={{marginLeft: '0.4rem', background: 'rgba(251,191,36,0.3)', color: '#fbbf24', borderRadius: '12px', padding: '0.1rem 0.5rem', fontSize: '0.75rem', fontWeight: 700}}>
+                                    {batches.filter(b => b.status === 'pending_shopify').length}
+                                </span>
+                            )}
+                        </button>
+                        <button
                             className={`nav-tab ${currentTab === 'completed' ? 'active' : ''}`}
                             onClick={() => setCurrentTab('completed')}
                         >
                             ✅ Completed
-                            {batches.filter(b => getCompletedCount(b) === b.quantity).length > 0 && (
+                            {batches.filter(b => b.status === 'completed').length > 0 && (
                                 <span style={{marginLeft: '0.4rem', background: 'rgba(16,185,129,0.3)', color: '#10b981', borderRadius: '12px', padding: '0.1rem 0.5rem', fontSize: '0.75rem', fontWeight: 700}}>
-                                    {batches.filter(b => getCompletedCount(b) === b.quantity).length}
+                                    {batches.filter(b => b.status === 'completed').length}
                                 </span>
                             )}
                         </button>
@@ -1975,7 +2044,7 @@
                                        ' · ' + d.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: true });
                             };
 
-                            const pendingBatches = filteredBatches.filter(b => getCompletedCount(b) < b.quantity);
+                            const pendingBatches = filteredBatches.filter(b => getCompletedCount(b) < b.quantity && b.status !== 'pending_shopify' && b.status !== 'completed');
 
                             return (
                                 <div>
@@ -2006,6 +2075,14 @@
                                         <div style={{padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
                                             <span style={{fontSize: '1.05rem', fontWeight: 700, color: '#4facfe'}}>⏳ Processing Queue</span>
                                             <span style={{background: 'rgba(79,172,254,0.2)', color: '#4facfe', borderRadius: '20px', padding: '0.15rem 0.6rem', fontSize: '0.8rem', fontWeight: 700}}>{pendingBatches.length}</span>
+                                            {selectedBatchIds.size > 0 && (
+                                                <button
+                                                    onClick={handleBulkDelete}
+                                                    style={{marginLeft: 'auto', background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer'}}
+                                                >
+                                                    🗑️ Delete {selectedBatchIds.size} Selected
+                                                </button>
+                                            )}
                                         </div>
                                         {pendingBatches.length === 0 ? (
                                             <div style={{textAlign: 'center', padding: '3rem', color: 'rgba(255,255,255,0.4)'}}>
@@ -2015,6 +2092,14 @@
                                             <table>
                                                 <thead>
                                                     <tr>
+                                                        <th style={{width: '40px'}}>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={pendingBatches.length > 0 && pendingBatches.every(b => selectedBatchIds.has(b.id))}
+                                                                onChange={() => toggleSelectAll(pendingBatches)}
+                                                                style={{width: '16px', height: '16px', cursor: 'pointer', accentColor: '#4facfe'}}
+                                                            />
+                                                        </th>
                                                         <th>Device Name</th>
                                                         <th>Category</th>
                                                         <th>Vendor</th>
@@ -2027,8 +2112,17 @@
                                                     {pendingBatches.map(batch => {
                                                         const completedCount = getCompletedCount(batch);
                                                         const progressColor = completedCount > 0 ? '#4facfe' : 'rgba(255,255,255,0.4)';
+                                                        const isSelected = selectedBatchIds.has(batch.id);
                                                         return (
-                                                            <tr key={batch.id}>
+                                                            <tr key={batch.id} style={{background: isSelected ? 'rgba(239,68,68,0.08)' : ''}}>
+                                                                <td>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={isSelected}
+                                                                        onChange={() => toggleBatchSelection(batch.id)}
+                                                                        style={{width: '16px', height: '16px', cursor: 'pointer', accentColor: '#ef4444'}}
+                                                                    />
+                                                                </td>
                                                                 <td style={{fontWeight: 600}}>{batch.deviceName || 'N/A'}</td>
                                                                 <td>{batch.category}</td>
                                                                 <td>{batch.vendor}</td>
@@ -2067,6 +2161,67 @@
                             );
                         })()}
 
+                        {currentTab === 'pending_shopify' && (() => {
+                            const pendingShopify = batches.filter(b => b.status === 'pending_shopify');
+                            return (
+                                <div>
+                                    <div className="table-container">
+                                        <div style={{padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                                            <span style={{fontSize: '1.05rem', fontWeight: 700, color: '#fbbf24'}}>🛍️ Pending Shopify</span>
+                                            <span style={{background: 'rgba(251,191,36,0.2)', color: '#fbbf24', borderRadius: '20px', padding: '0.15rem 0.6rem', fontSize: '0.8rem', fontWeight: 700}}>{pendingShopify.length}</span>
+                                        </div>
+                                        {pendingShopify.length === 0 ? (
+                                            <div style={{textAlign: 'center', padding: '3rem', color: 'rgba(255,255,255,0.4)'}}>
+                                                🎉 No batches pending Shopify updates!
+                                            </div>
+                                        ) : (
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Device</th>
+                                                        <th>Category</th>
+                                                        <th>Vendor</th>
+                                                        <th>Units</th>
+                                                        <th>Processed</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {pendingShopify.map(batch => (
+                                                        <tr key={batch.id}>
+                                                            <td style={{fontWeight: 600}}>{batch.deviceName || 'N/A'}</td>
+                                                            <td>{batch.category}</td>
+                                                            <td>{batch.vendor}</td>
+                                                            <td><span style={{color: '#fbbf24', fontWeight: 700}}>{batch.quantity}/{batch.quantity}</span></td>
+                                                            <td style={{color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem', whiteSpace: 'nowrap'}}>
+                                                                {batch.processedAt ? new Date(batch.processedAt).toLocaleDateString('en-CA', {month: 'short', day: 'numeric', year: 'numeric'}) : '—'}
+                                                            </td>
+                                                            <td>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        const skuFromUnits = batch.units && batch.units[0] && batch.units[0].specs && batch.units[0].specs.sku;
+                                                                        setChecklistModal({
+                                                                            sku: skuFromUnits || 'NO-SKU',
+                                                                            batchId: batch.id,
+                                                                            deviceName: batch.deviceName || batch.category,
+                                                                            checks: { listed: false, cost: false, price: false, description: false, quantity: false }
+                                                                        });
+                                                                    }}
+                                                                    style={{background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: '#000', border: 'none', borderRadius: '8px', padding: '0.55rem 1rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer'}}
+                                                                >
+                                                                    📋 Complete Checklist
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
                         {currentTab === 'completed' && (() => {
                             const formatDate = (isoStr) => {
                                 if (!isoStr) return '—';
@@ -2075,7 +2230,7 @@
                                        ' · ' + d.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: true });
                             };
 
-                            const allCompleted = batches.filter(b => getCompletedCount(b) === b.quantity);
+                            const allCompleted = batches.filter(b => b.status === 'completed');
 
                             const filteredCompleted = allCompleted.filter(b => {
                                 const matchSearch = !compSearch.trim() ||
@@ -2132,6 +2287,14 @@
                                         <div style={{padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
                                             <span style={{fontSize: '1.05rem', fontWeight: 700, color: '#10b981'}}>✅ Completed Batches</span>
                                             <span style={{background: 'rgba(16,185,129,0.2)', color: '#10b981', borderRadius: '20px', padding: '0.15rem 0.6rem', fontSize: '0.8rem', fontWeight: 700}}>{filteredCompleted.length}</span>
+                                            {selectedBatchIds.size > 0 && (
+                                                <button
+                                                    onClick={handleBulkDelete}
+                                                    style={{marginLeft: 'auto', background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1rem', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer'}}
+                                                >
+                                                    🗑️ Delete {selectedBatchIds.size} Selected
+                                                </button>
+                                            )}
                                         </div>
                                         {filteredCompleted.length === 0 ? (
                                             <div style={{textAlign: 'center', padding: '3rem', color: 'rgba(255,255,255,0.4)'}}>
@@ -2141,6 +2304,14 @@
                                             <table>
                                                 <thead>
                                                     <tr>
+                                                        <th style={{width: '40px'}}>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={filteredCompleted.length > 0 && filteredCompleted.every(b => selectedBatchIds.has(b.id))}
+                                                                onChange={() => toggleSelectAll(filteredCompleted)}
+                                                                style={{width: '16px', height: '16px', cursor: 'pointer', accentColor: '#10b981'}}
+                                                            />
+                                                        </th>
                                                         <th>Device Name</th>
                                                         <th>Category</th>
                                                         <th>Vendor</th>
@@ -2151,8 +2322,18 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {filteredCompleted.map(batch => (
-                                                        <tr key={batch.id}>
+                                                    {filteredCompleted.map(batch => {
+                                                        const isSelected = selectedBatchIds.has(batch.id);
+                                                        return (
+                                                        <tr key={batch.id} style={{background: isSelected ? 'rgba(239,68,68,0.08)' : ''}}>
+                                                            <td>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={isSelected}
+                                                                    onChange={() => toggleBatchSelection(batch.id)}
+                                                                    style={{width: '16px', height: '16px', cursor: 'pointer', accentColor: '#ef4444'}}
+                                                                />
+                                                            </td>
                                                             <td style={{fontWeight: 600}}>{batch.deviceName || 'N/A'}</td>
                                                             <td>{batch.category}</td>
                                                             <td>{batch.vendor}</td>
@@ -2180,7 +2361,8 @@
                                                                 </div>
                                                             </td>
                                                         </tr>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </tbody>
                                             </table>
                                         )}
@@ -2371,6 +2553,100 @@
                                         Print {selectedUnitsForReprint.length > 0 ? `${selectedUnitsForReprint.length} Label(s)` : 'Selected'}
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── BATCH COMPLETION CHECKLIST MODAL ── */}
+                    {checklistModal && (
+                        <div className="modal-overlay">
+                            <div className="modal-content" style={{maxWidth: '500px'}} onClick={e => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">🎉 Batch Complete!</h2>
+                                </div>
+
+                                <div style={{background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '12px', padding: '1rem 1.25rem', marginBottom: '1.5rem'}}>
+                                    <div style={{fontWeight: 700, color: '#10b981', marginBottom: '0.25rem', fontSize: '1rem'}}>{checklistModal.deviceName}</div>
+                                    <div style={{fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)'}}>
+                                        Make sure the SKU on the label matches Shopify: <span style={{color: '#fff', fontWeight: 700, fontFamily: 'monospace'}}>{checklistModal.sku}</span>
+                                    </div>
+                                </div>
+
+                                <div style={{fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', marginBottom: '1rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px'}}>
+                                    Shopify Checklist
+                                </div>
+
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem'}}>
+                                    {[
+                                        { key: 'listed',      label: 'Product listed on website' },
+                                        { key: 'cost',        label: 'Cost updated' },
+                                        { key: 'price',       label: 'Price updated on Shopify' },
+                                        { key: 'description', label: 'Description updated' },
+                                        { key: 'quantity',    label: 'Quantity updated' },
+                                    ].map(item => {
+                                        const checked = checklistModal.checks[item.key];
+                                        return (
+                                            <div
+                                                key={item.key}
+                                                onClick={() => setChecklistModal(prev => ({
+                                                    ...prev,
+                                                    checks: { ...prev.checks, [item.key]: !prev.checks[item.key] }
+                                                }))}
+                                                style={{
+                                                    display: 'flex', alignItems: 'center', gap: '0.9rem',
+                                                    padding: '0.85rem 1rem',
+                                                    background: checked ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.04)',
+                                                    border: `1.5px solid ${checked ? 'rgba(16,185,129,0.5)' : 'rgba(255,255,255,0.1)'}`,
+                                                    borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                <div style={{
+                                                    width: '22px', height: '22px', borderRadius: '6px', flexShrink: 0,
+                                                    background: checked ? '#10b981' : 'transparent',
+                                                    border: `2px solid ${checked ? '#10b981' : 'rgba(255,255,255,0.3)'}`,
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    fontSize: '13px', transition: 'all 0.2s'
+                                                }}>
+                                                    {checked ? '✓' : ''}
+                                                </div>
+                                                <span style={{fontWeight: 600, color: checked ? '#fff' : 'rgba(255,255,255,0.7)', fontSize: '0.95rem'}}>
+                                                    {item.label}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            await db.collection('studentTechBatches').doc(checklistModal.batchId).update({
+                                                status: 'completed',
+                                                completedAt: new Date().toISOString(),
+                                                shopifyChecklist: checklistModal.checks
+                                            });
+                                            setChecklistModal(null);
+                                            loadBatches();
+                                            setSuccessMessage('✅ Batch fully completed and published!');
+                                            setTimeout(() => setSuccessMessage(''), 3000);
+                                        } catch (e) {
+                                            setErrorMessage('❌ Failed to save: ' + e.message);
+                                            setTimeout(() => setErrorMessage(''), 4000);
+                                        }
+                                    }}
+                                    disabled={!Object.values(checklistModal.checks).every(Boolean)}
+                                    style={{
+                                        width: '100%', padding: '0.9rem',
+                                        background: Object.values(checklistModal.checks).every(Boolean)
+                                            ? 'linear-gradient(135deg, #10b981, #059669)'
+                                            : 'rgba(255,255,255,0.1)',
+                                        color: '#fff', border: 'none', borderRadius: '12px',
+                                        fontWeight: 700, fontSize: '1rem', cursor: Object.values(checklistModal.checks).every(Boolean) ? 'pointer' : 'not-allowed',
+                                        transition: 'all 0.3s'
+                                    }}
+                                >
+                                    {Object.values(checklistModal.checks).every(Boolean) ? '✅ All Done — Close' : `Complete all ${Object.values(checklistModal.checks).filter(Boolean).length}/5 items to continue`}
+                                </button>
                             </div>
                         </div>
                     )}
